@@ -10,10 +10,10 @@ Gem::Specification.new do |s|
   s.authors     = ['Ryan Dy']
   s.email       = ['ryan.dy@gmail.com']
   s.homepage    = 'http://github.com/rdy/underscore_extensions'
-  s.summary     = "TODO: Summary of BackboneExtensions."
-  s.description = "TODO: Description of BackboneExtensions."
+  s.summary     = %q{Extensions to backbone javascript library as a rails engine}
+  s.description = %q{Adds extensions to the backbone javascript library. It adds the javascript as a rails engine to be included in to a Rails 3+ project. To use it make sure require underscore, backbone and the extensions you need.}
 
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.markdown"]
 
   s.add_development_dependency 'fuubar'
   s.add_development_dependency 'jasmine', ">= 1.2.1"
