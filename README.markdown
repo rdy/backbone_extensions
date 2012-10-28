@@ -11,7 +11,7 @@ Installing
   1. Add the gem to bundler or install:  gem 'backbone_extensions' or `gem install backbone_extensions`
   2. In your application.js //= require underscore
   3. In your application.js //= require backbone
-  4. In your application.js //= require underscore_extensions/include
-  5. In your application.js //= require underscore_extensions/decorator
+  4. In your application.js //= require backbone_extensions/include
+  5. In your application.js //= require backbone_extensions/decorator
 
 Copyright (c) 2012 Ryan Dy, released under the MIT license
