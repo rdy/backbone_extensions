@@ -16,22 +16,29 @@ describe("Associations", function () {
       namespace = {Klass: Klass};
       namespace.Klass.include(Backbone.associations(namespace));
 
-      subject = new namespace.Klass();
+      subject = new namespace.Klass({some: 'attrs'}, {some: 'options'});
     });
 
     it("should call #associations", function () {
-      expect(associationsSpy).toHaveBeenCalled();
+      expect(associationsSpy).toHaveBeenCalledWith({some: 'attrs'}, {some: 'options'});
+    });
+
+    it("should not pollute the object's prototype with association functions", function() {
+      expect(subject.belongsTo).toBeUndefined();
+      expect(subject.hasMany).toBeUndefined();
+      expect(subject.hasOne).toBeUndefined();
     });
   });
 
   describe("defining associations", function () {
     var app, subject;
     beforeEach(function () {
-      app = {};
-      app.Car = Backbone.Model.extend({}, Backbone.include);
-      app.Wheels = Backbone.Collection.extend({}, Backbone.include);
-      app.Wheel = Backbone.Model.extend({}, Backbone.include);
-      app.Engine = Backbone.Model.extend({}, Backbone.include);
+      app = {
+        Car: Backbone.Model.extend({}, Backbone.include),
+        Wheels: Backbone.Collection.extend({}, Backbone.include),
+        Wheel: Backbone.Model.extend({}, Backbone.include),
+        Engine: Backbone.Model.extend({}, Backbone.include)
+      };
 
       app.Car.include(Backbone.associations(app));
       app.Wheels.include(Backbone.associations(app));
