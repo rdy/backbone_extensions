@@ -13,5 +13,6 @@ Installing
   3. In your application.js //= require backbone
   4. In your application.js //= require backbone_extensions/include
   5. In your application.js //= require backbone_extensions/decorator
+  6. In your application.js //= require backbone_extensions/associations
 
 Copyright (c) 2012 Ryan Dy, released under the MIT license
