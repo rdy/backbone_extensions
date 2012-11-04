@@ -61,12 +61,48 @@ describe("Associations", function () {
 
       describe("the association function", function () {
         describe("when the model is initialized without the association's key", function () {
-          beforeEach(function () {
-            subject = new app.Wheel({id: 1});
+          describe("when the model has a parent collection", function() {
+            var collection;
+            beforeEach(function() {
+              app.Wheels.prototype.associations = function(models, options) {
+                this.belongsTo('car', options);
+              };
+              prius = new app.Car({id: 1});
+              subject = new app.Wheel({id: 1});
+            });
+
+            describe("when the collection has the association", function() {
+              beforeEach(function () {
+                expect(subject.collection).toBeUndefined();
+                collection = new app.Wheels([subject], {car: prius});
+              });
+
+              it("should return the collection's instance of the association at runtime, not definition time", function() {
+                expect(collection.car()).toBe(prius);
+                expect(subject.car()).toBe(collection.car());
+              });
+            });
+
+            describe("when the collection doesn't have the association", function() {
+              beforeEach(function () {
+                collection = new app.Wheels([subject]);
+              });
+
+              it("should return undefined", function() {
+                expect(subject.car()).toBeUndefined();
+              });
+            });
           });
 
-          it("should return undefined", function () {
-            expect(subject.car()).toBeUndefined();
+          describe("when the model doesn't have a parent collection", function() {
+            beforeEach(function () {
+              subject = new app.Wheel({id: 1});
+              expect(subject.car()).toBeUndefined();
+            });
+  
+            it("should return undefined", function () {
+              expect(subject.car()).toBeUndefined();
+            });
           });
         });
 
