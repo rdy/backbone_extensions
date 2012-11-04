@@ -27,15 +27,16 @@ describe("Associations", function () {
   describe("defining associations", function () {
     var app, subject;
     beforeEach(function () {
-      var Car = Backbone.Model.extend({}, Backbone.include);
-      var Wheels = Backbone.Collection.extend({}, Backbone.include);
-      var Wheel = Backbone.Model.extend({}, Backbone.include);
+      app = {};
+      app.Car = Backbone.Model.extend({}, Backbone.include);
+      app.Wheels = Backbone.Collection.extend({}, Backbone.include);
+      app.Wheel = Backbone.Model.extend({}, Backbone.include);
+      app.Engine = Backbone.Model.extend({}, Backbone.include);
 
-      app = { Car: Car, Wheels: Wheels, Wheel: Wheel };
-
-      Car.include(Backbone.associations(app));
-      Wheels.include(Backbone.associations(app));
-      Wheel.include(Backbone.associations(app));
+      app.Car.include(Backbone.associations(app));
+      app.Wheels.include(Backbone.associations(app));
+      app.Wheel.include(Backbone.associations(app));
+      app.Engine.include(Backbone.associations(app));
     });
 
     describe("#belongsTo", function () {
@@ -128,6 +129,51 @@ describe("Associations", function () {
 
           it("should be that function", function () {
             expect(subject.wheels).toBe(rimsFunc);
+          });
+        });
+      });
+    });
+
+    describe("#hasOne", function () {
+      var v6;
+      beforeEach(function () {
+        app.Car.prototype.associations = function(models, options) {
+          this.hasOne('engine', options);
+        }
+      });
+
+      describe("the association function", function () {
+        describe("when the model is initialized without the association's key", function () {
+          beforeEach(function () {
+            subject = new app.Car({id: 1});
+          });
+
+          it("should return a new instance of the child model by fetching the constructor from the provided namespace", function () {
+            expect(subject.engine() instanceof app.Engine).toBe(true);
+          });
+        });
+
+        describe("when the model is initialized with an instance of the associated object", function () {
+          beforeEach(function () {
+            v6 = new app.Engine([]);
+            subject = new app.Car({id: 1}, {engine: v6});
+          });
+
+          it("should return the instance of the object", function () {
+            expect(subject.engine()).toBe(v6);
+          });
+        });
+
+        describe("when the model is initialized with a function", function () {
+          var v6Func;
+          beforeEach(function () {
+            var v6 = new app.Engine({});
+            v6Func = function() { return v6; };
+            subject = new app.Car({id: 1}, {engine: v6Func});
+          });
+
+          it("should be that function", function () {
+            expect(subject.engine).toBe(v6Func);
           });
         });
       });
