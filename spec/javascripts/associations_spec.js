@@ -1,22 +1,29 @@
 describe("Associations", function () {
+  var subject, app;
+  beforeEach(function () {
+    app = {
+      Car: Backbone.Model.extend({}, Backbone.include),
+      Wheels: Backbone.Collection.extend({}, Backbone.include),
+      Wheel: Backbone.Model.extend({}, Backbone.include),
+      Engine: Backbone.Model.extend({}, Backbone.include)
+    };
+
+    app.Car.include(Backbone.associations(app));
+    app.Wheels.include(Backbone.associations(app));
+    app.Wheel.include(Backbone.associations(app));
+    app.Engine.include(Backbone.associations(app));
+  });
+
   it("should be an includeable module", function () {
     expect(_(Backbone.associations).isFunction()).toBe(true);
     expect(_(Backbone.associations().included).isObject()).toBe(true);
   });
 
   describe("when the model is initialized", function () {
-    var subject, namespace, associationsSpy;
-
+    var associationsSpy;
     beforeEach(function () {
-      associationsSpy = jasmine.createSpy('associations');
-
-      var Klass = Backbone.Model.extend({
-        associations: associationsSpy
-      }, Backbone.include);
-      namespace = {Klass: Klass};
-      namespace.Klass.include(Backbone.associations(namespace));
-
-      subject = new namespace.Klass({some: 'attrs'}, {some: 'options'});
+      app.Car.prototype.associations = associationsSpy = jasmine.createSpy('associations');
+      subject = new app.Car({some: 'attrs'}, {some: 'options'});
     });
 
     it("should call #associations", function () {
@@ -33,30 +40,15 @@ describe("Associations", function () {
       it("should return the instance of the object being initialized", function() {
         associationsSpy.reset();
         associationsSpy.andCallFake(function() {
-          expect(this.value() instanceof namespace.Klass).toBe(true);
+          expect(this.value() instanceof app.Car).toBe(true);
         });
-        subject = new namespace.Klass();
+        subject = new app.Car();
         expect(associationsSpy).toHaveBeenCalled();
       });
     });
   });
 
   describe("defining associations", function () {
-    var app, subject;
-    beforeEach(function () {
-      app = {
-        Car: Backbone.Model.extend({}, Backbone.include),
-        Wheels: Backbone.Collection.extend({}, Backbone.include),
-        Wheel: Backbone.Model.extend({}, Backbone.include),
-        Engine: Backbone.Model.extend({}, Backbone.include)
-      };
-
-      app.Car.include(Backbone.associations(app));
-      app.Wheels.include(Backbone.associations(app));
-      app.Wheel.include(Backbone.associations(app));
-      app.Engine.include(Backbone.associations(app));
-    });
-
     describe("#belongsTo", function () {
       var prius;
       beforeEach(function () {
@@ -229,6 +221,146 @@ describe("Associations", function () {
           it("should be that function", function () {
             expect(subject.engine).toBe(v6Func);
           });
+        });
+      });
+    });
+  });
+
+  describe("augmenting #parse", function() {
+    describe("for hasOne", function() {
+      var baseParseSpy;
+      beforeEach(function() {
+        baseParseSpy = spyOn(app.Car.prototype, 'parse').andCallThrough();
+      });
+
+      describe("when the association is defined with parse: true", function() {
+        beforeEach(function() {
+          app.Car.prototype.associations = function() {
+            this.hasOne('engine', {parse: true});
+          };
+          subject = new app.Car();
+          spyOn(app.Engine.prototype, 'clear');
+          spyOn(app.Engine.prototype, 'set');
+          spyOn(app.Engine.prototype, 'change');
+        });
+
+        describe("#parse", function() {
+          it("should replace the child object's attributes with the association's data from the response", function() {
+            var engineData = {cylinders: 6, manufacturer: 'toyota'};
+            subject.parse({engine: engineData});
+            expect(app.Engine.prototype.clear).toHaveBeenCalledWith({silent: true});
+            expect(app.Engine.prototype.set).toHaveBeenCalledWith(engineData, {silent: true});
+            expect(app.Engine.prototype.change).toHaveBeenCalled();
+          });
+
+          it("should remove the association's key from the response and call the object's normal parse function", function() {
+            subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
+            expect(baseParseSpy).toHaveBeenCalledWith({foo: 'bar', cow: ['moo']});
+          });
+        });
+      });
+
+      describe("when the association is defined with parse as a function", function() {
+        var associationParseSpy, associationParseResult = {water: ['H', 'O', 'H']};
+        beforeEach(function() {
+          associationParseSpy = jasmine.createSpy('association parse').andCallFake(function() { return associationParseResult; });
+          app.Car.prototype.associations = function() {
+            this.hasOne('engine', {parse: associationParseSpy});
+          };
+          subject = new app.Car();
+        });
+
+        describe("#parse", function() {
+          it("should call the association's provided parse function", function() {
+            var response = {foo: 'bar'};
+            subject.parse(response);
+            expect(associationParseSpy).toHaveBeenCalledWith(response);
+          });
+
+          it("should call the object's normal parse function", function() {
+            subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
+            expect(baseParseSpy).toHaveBeenCalledWith(associationParseResult);
+          });
+        });
+      });
+
+      describe("when the association is defined with parse as falsy", function() {
+        beforeEach(function() {
+          app.Car.prototype.associations = function() {
+            this.hasOne('engine', {parse: false});
+          };
+          subject = new app.Car();
+        });
+
+        it("should not modify the parse function", function() {
+          expect(subject.parse).toBe(app.Car.prototype.parse);
+        });
+      });
+    });
+
+    describe("for hasMany", function() {
+      var baseParseSpy;
+      beforeEach(function() {
+        baseParseSpy = spyOn(app.Car.prototype, 'parse').andCallThrough();
+      });
+
+      describe("when the association is defined with parse: true", function() {
+        beforeEach(function() {
+          app.Car.prototype.associations = function() {
+            this.hasMany('wheels', {parse: true});
+          };
+          subject = new app.Car();
+          spyOn(app.Wheels.prototype, 'reset');
+        });
+
+        describe("#parse", function() {
+          it("should reset the child collection with its data from the response", function() {
+            var wheelsData = [{id: 1}, {id: 2}];
+            subject.parse({wheels: wheelsData});
+            expect(app.Wheels.prototype.reset).toHaveBeenCalledWith(wheelsData);
+          });
+
+          it("should remove the association's key from the response and call the object's normal parse function", function() {
+            subject.parse({wheels: [1,2,3], foo: 'bar', cow: ['moo']});
+            expect(baseParseSpy).toHaveBeenCalledWith({foo: 'bar', cow: ['moo']});
+          });
+        });
+      });
+
+      describe("when the association is defined with parse as a function", function() {
+        var associationParseSpy, associationParseResult = {water: ['H', 'O', 'H']};
+        beforeEach(function() {
+          associationParseSpy = jasmine.createSpy('association parse').andCallFake(function() { return associationParseResult; });
+          app.Car.prototype.associations = function() {
+            this.hasMany('wheels', {parse: associationParseSpy});
+          };
+          subject = new app.Car();
+        });
+
+        describe("#parse", function() {
+          it("should call the association's provided parse function", function() {
+            var response = {foo: 'bar'};
+            subject.parse(response);
+            expect(associationParseSpy).toHaveBeenCalledWith(response);
+          });
+
+          it("should call the object's normal parse function", function() {
+            subject.parse({wheels: [1,2,3], foo: 'bar', cow: ['moo']});
+            expect(baseParseSpy).toHaveBeenCalledWith(associationParseResult);
+          });
+        });
+      });
+
+      describe("when the association is defined with parse as falsy", function() {
+        beforeEach(function() {
+          app.Car.prototype.associations = function() {
+            this.hasMany('wheels', {parse: false});
+          };
+          subject = new app.Car();
+        });
+
+        it("should not modify the parse function", function() {
+          expect(subject.parse).toBe(app.Car.prototype.parse);
         });
       });
     });
