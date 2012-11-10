@@ -28,6 +28,17 @@ describe("Associations", function () {
       expect(subject.hasMany).toBeUndefined();
       expect(subject.hasOne).toBeUndefined();
     });
+
+    describe("#value", function() {
+      it("should return the instance of the object being initialized", function() {
+        associationsSpy.reset();
+        associationsSpy.andCallFake(function() {
+          expect(this.value() instanceof namespace.Klass).toBe(true);
+        });
+        subject = new namespace.Klass();
+        expect(associationsSpy).toHaveBeenCalled();
+      });
+    });
   });
 
   describe("defining associations", function () {
