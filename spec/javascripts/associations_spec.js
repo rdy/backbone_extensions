@@ -4,14 +4,13 @@ describe("Associations", function () {
     app = {
       Car: Backbone.Model.extend({}, Backbone.include),
       Wheels: Backbone.Collection.extend({}, Backbone.include),
+      SpareWheels: Backbone.Collection.extend({}, Backbone.include),
       Wheel: Backbone.Model.extend({}, Backbone.include),
-      Engine: Backbone.Model.extend({}, Backbone.include)
+      Engine: Backbone.Model.extend({}, Backbone.include),
+      SpareEngine: Backbone.Model.extend({}, Backbone.include)
     };
 
-    app.Car.include(Backbone.associations(app));
-    app.Wheels.include(Backbone.associations(app));
-    app.Wheel.include(Backbone.associations(app));
-    app.Engine.include(Backbone.associations(app));
+    _(app).chain().values().invoke('include', Backbone.associations(app));
   });
 
   it("should be an includeable module", function () {
@@ -149,8 +148,23 @@ describe("Associations", function () {
             subject = new app.Car({id: 1});
           });
 
-          it("should return a new instance of the child collection by fetching the constructor from the provided namespace", function () {
-            expect(subject.wheels() instanceof app.Wheels).toBe(true);
+          describe("when options.klass is provided", function() {
+            beforeEach(function() {
+              app.Car.prototype.associations = function(models, options) {
+                this.hasMany('wheels', {klass: app.SpareWheels});
+              };
+              subject = new app.Car({id: 1});
+            });
+
+            it("should return a new instance of the child collection with that class", function () {
+              expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
+            });
+          });
+
+          describe("when options.klass is not provided", function() {
+            it("should return a new instance of the child collection by inferring the class name from the given name and fetching the constructor from the provided namespace", function () {
+              expect(subject.wheels() instanceof app.Wheels).toBe(true);
+            });
           });
         });
 
@@ -194,8 +208,23 @@ describe("Associations", function () {
             subject = new app.Car({id: 1});
           });
 
-          it("should return a new instance of the child model by fetching the constructor from the provided namespace", function () {
-            expect(subject.engine() instanceof app.Engine).toBe(true);
+          describe("when options.klass is provided", function() {
+            beforeEach(function() {
+              app.Car.prototype.associations = function(models, options) {
+                this.hasOne('engine', {klass: app.SpareEngine});
+              };
+              subject = new app.Car({id: 1});
+            });
+
+            it("should return a new instance of the child model with that class", function () {
+              expect(subject.engine() instanceof app.SpareEngine).toBe(true);
+            });
+          });
+
+          describe("when options.klass is not provided", function() {
+            it("should return a new instance of the child model by inferring the class name from the given name and fetching the constructor from the provided namespace", function () {
+              expect(subject.engine() instanceof app.Engine).toBe(true);
+            });
           });
         });
 
