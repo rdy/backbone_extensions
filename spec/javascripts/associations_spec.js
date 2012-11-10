@@ -305,11 +305,11 @@ describe("Associations", function () {
         });
 
         describe("#parse", function() {
-          it("should replace the child object's attributes with the association's data from the response", function() {
+          it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
             var engineData = {cylinders: 6, manufacturer: 'toyota'};
             subject.parse({engine: engineData});
             expect(app.Engine.prototype.clear).toHaveBeenCalledWith({silent: true});
-            expect(app.Engine.prototype.set).toHaveBeenCalledWith(engineData, {silent: true});
+            expect(app.Engine.prototype.set).toHaveBeenCalledWith(engineData, {silent: true, parse: true});
             expect(app.Engine.prototype.change).toHaveBeenCalled();
           });
 
@@ -374,10 +374,10 @@ describe("Associations", function () {
         });
 
         describe("#parse", function() {
-          it("should reset the child collection with its data from the response", function() {
+          it("should reset the child collection with its data from the response, passing parse: true downwards", function() {
             var wheelsData = [{id: 1}, {id: 2}];
             subject.parse({wheels: wheelsData});
-            expect(app.Wheels.prototype.reset).toHaveBeenCalledWith(wheelsData);
+            expect(app.Wheels.prototype.reset).toHaveBeenCalledWith(wheelsData, {parse: true});
           });
 
           it("should remove the association's key from the response and call the object's normal parse function", function() {
