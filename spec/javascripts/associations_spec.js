@@ -56,6 +56,15 @@ describe("Associations", function () {
         };
       });
 
+      it("should return the associations proxy so association definition can be chained", function() {
+        var associationsSpy = jasmine.createSpy('associations').andCallFake(function(attrs, options) {
+          expect(this.belongsTo('car', options)).toBe(this);
+        });
+        app.Wheel.prototype.associations = associationsSpy;
+        subject = new app.Wheel({id: 1});
+        expect(associationsSpy).toHaveBeenCalled();
+      });
+
       it("should define a function for the association", function () {
         subject = new app.Wheel({id: 1});
         expect(_(subject.car).isFunction()).toBe(true);
@@ -142,6 +151,15 @@ describe("Associations", function () {
         }
       });
 
+      it("should return the associations proxy so association definition can be chained", function() {
+        var associationsSpy = jasmine.createSpy('associations').andCallFake(function(attrs, options) {
+          expect(this.hasMany('wheels', options)).toBe(this);
+        });
+        app.Car.prototype.associations = associationsSpy;
+        subject = new app.Car({id: 1});
+        expect(associationsSpy).toHaveBeenCalled();
+      });
+
       describe("the association function", function () {
         describe("when the model is initialized without the association's key", function () {
           beforeEach(function () {
@@ -200,6 +218,15 @@ describe("Associations", function () {
         app.Car.prototype.associations = function(models, options) {
           this.hasOne('engine', options);
         }
+      });
+
+      it("should return the associations proxy so association definition can be chained", function() {
+        var associationsSpy = jasmine.createSpy('associations').andCallFake(function(attrs, options) {
+          expect(this.hasOne('engine', options)).toBe(this);
+        });
+        app.Car.prototype.associations = associationsSpy;
+        subject = new app.Car({id: 1});
+        expect(associationsSpy).toHaveBeenCalled();
       });
 
       describe("the association function", function () {
