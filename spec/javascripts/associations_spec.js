@@ -148,7 +148,7 @@ describe("Associations", function () {
       beforeEach(function () {
         app.Car.prototype.associations = function(models, options) {
           this.hasMany('wheels', options);
-        }
+        };
       });
 
       it("should return the associations proxy so association definition can be chained", function() {
@@ -180,7 +180,9 @@ describe("Associations", function () {
           });
 
           describe("when options.klass is not provided", function() {
-            it("should return a new instance of the child collection by inferring the class name from the given name and fetching the constructor from the provided namespace", function () {
+            it("should return a new instance of the child collection " +
+                "by inferring the class name from the given name " +
+                "and fetching the constructor from the provided namespace", function () {
               expect(subject.wheels() instanceof app.Wheels).toBe(true);
             });
           });
@@ -217,7 +219,7 @@ describe("Associations", function () {
       beforeEach(function () {
         app.Car.prototype.associations = function(models, options) {
           this.hasOne('engine', options);
-        }
+        };
       });
 
       it("should return the associations proxy so association definition can be chained", function() {
@@ -249,7 +251,9 @@ describe("Associations", function () {
           });
 
           describe("when options.klass is not provided", function() {
-            it("should return a new instance of the child model by inferring the class name from the given name and fetching the constructor from the provided namespace", function () {
+            it("should return a new instance of the child model " +
+                "by inferring the class name from the given name " +
+                "and fetching the constructor from the provided namespace", function () {
               expect(subject.engine() instanceof app.Engine).toBe(true);
             });
           });

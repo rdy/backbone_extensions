@@ -84,7 +84,7 @@ describe('Decorator', function() {
     var collection;
     beforeEach(function() {
       var model1 = new ModelKlass({id: 1}), model2 = new ModelKlass({id: 2});
-      collection = new CollectionKlass;
+      collection = new CollectionKlass();
       collection.add(model1);
       collection.add(model2);
       subject = new DecoratorKlass(collection);

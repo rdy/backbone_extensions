@@ -8,6 +8,7 @@
 
 paths:
   - lib/assets/javascripts/**/*.js
+  - spec/javascripts/**/*.js
 
 exclude_paths:
 
@@ -20,7 +21,7 @@ exclude_paths:
 adsafe:   false     # true if ADsafe rules should be enforced. See http://www.ADsafe.org/
 bitwise:  true      # true if bitwise operators should not be allowed
 newcap:   true      # true if Initial Caps must be used with constructor functions
-eqeqeq:   false     # true if === should be required (for ALL equality comparisons)
+eqeqeq:   true      # true if === should be required (for ALL equality comparisons)
 immed:    false     # true if immediate function invocations must be wrapped in parens
 nomen:    false     # true if initial or trailing underscore in identifiers should be forbidden
 onevar:   false     # true if only one var statement per function should be allowed
@@ -56,6 +57,14 @@ predef:           # Names of predefined global variables - comma-separated strin
   - Backbone
   - jQuery
 
+  - describe
+  - it
+  - beforeEach
+  - afterEach
+  - expect
+  - jasmine
+  - spyOn
+
 browser:  true      # true if the standard browser globals should be predefined
 rhino:    false     # true if the Rhino environment globals should be predefined
 windows:  false     # true if Windows-specific globals should be predefined
@@ -64,12 +73,12 @@ devel:    false     # true if functions like alert, confirm, console, prompt etc
 
 # jshint options
 loopfunc: true      # true if functions should be allowed to be defined within loops
-asi:      true      # true if automatic semicolon insertion should be tolerated
-boss:     true      # true if advanced usage of assignments and == should be allowed
-couch:    true      # true if CouchDB globals should be predefined
+asi:      false     # true if automatic semicolon insertion should be tolerated
+boss:     false     # true if advanced usage of assignments and == should be allowed
+couch:    false     # true if CouchDB globals should be predefined
 curly:    false     # true if curly braces around blocks should be required (even in if/for/while)
 noarg:    true      # true if arguments.caller and arguments.callee should be disallowed
-node:     true      # true if the Node.js environment globals should be predefined
+node:     false     # true if the Node.js environment globals should be predefined
 noempty:  true      # true if empty blocks should be disallowed
 nonew:    true      # true if using `new` for side-effects should be disallowed
 
