@@ -56,7 +56,6 @@ predef:           # Names of predefined global variables - comma-separated strin
   - _
   - Backbone
   - jQuery
-
   - describe
   - it
   - beforeEach
