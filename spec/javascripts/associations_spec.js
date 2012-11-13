@@ -1,21 +1,21 @@
-describe("Associations", function () {
+describe("associations", function () {
   var subject, app;
   beforeEach(function () {
     app = {
-      Car: Backbone.Model.extend({}, Backbone.include),
-      Wheels: Backbone.Collection.extend({}, Backbone.include),
-      SpareWheels: Backbone.Collection.extend({}, Backbone.include),
-      Wheel: Backbone.Model.extend({}, Backbone.include),
-      Engine: Backbone.Model.extend({}, Backbone.include),
-      SpareEngine: Backbone.Model.extend({}, Backbone.include)
+      Car: Backbone.Model.extend({}, Backbone.extensions.include),
+      Wheels: Backbone.Collection.extend({}, Backbone.extensions.include),
+      SpareWheels: Backbone.Collection.extend({}, Backbone.extensions.include),
+      Wheel: Backbone.Model.extend({}, Backbone.extensions.include),
+      Engine: Backbone.Model.extend({}, Backbone.extensions.include),
+      SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include)
     };
 
-    _(app).chain().values().invoke('include', Backbone.associations(app));
+    _(app).chain().values().invoke('include', Backbone.extensions.associations(app));
   });
 
   it("should be an includeable module", function () {
-    expect(_(Backbone.associations).isFunction()).toBe(true);
-    expect(_(Backbone.associations().included).isObject()).toBe(true);
+    expect(_(Backbone.extensions.associations).isFunction()).toBe(true);
+    expect(_(Backbone.extensions.associations().included).isObject()).toBe(true);
   });
 
   describe("when the model is initialized", function () {
@@ -110,7 +110,7 @@ describe("Associations", function () {
               subject = new app.Wheel({id: 1});
               expect(subject.car()).toBeUndefined();
             });
-  
+
             it("should return undefined", function () {
               expect(subject.car()).toBeUndefined();
             });

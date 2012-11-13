@@ -9,7 +9,7 @@ describe('Decorator', function() {
        model: ModelKlass
      });
 
-    DecoratorKlass = Backbone.Decorator.extend({
+    DecoratorKlass = Backbone.extensions.Decorator.extend({
       model: ModelKlass,
       collection: CollectionKlass,
       initialize: initializeSpy,
@@ -23,10 +23,10 @@ describe('Decorator', function() {
 
   describe('when the Backbone include is present', function() {
     beforeEach(function() {
-      expect(Backbone.include).toBeDefined();
+      expect(Backbone.extensions.include).toBeDefined();
     });
     it('should have the include function', function() {
-      expect(DecoratorKlass.include).toEqual(Backbone.include.include);
+      expect(DecoratorKlass.include).toEqual(Backbone.extensions.include.include);
     });
   });
 

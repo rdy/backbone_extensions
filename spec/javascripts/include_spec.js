@@ -2,7 +2,7 @@ describe('include', function() {
   var Klass;
   beforeEach(function() {
     Klass = function() { };
-    _(Klass).extend(Backbone.include);
+    _(Klass).extend(Backbone.extensions.include);
   });
 
   describe('#include', function() {
