@@ -63,7 +63,12 @@ describe('delegateEvents', function() {
       beforeEach(function() {
         resetSpy1 = jasmine.createSpy('resetSpy1');
         resetSpy2 = jasmine.createSpy('resetSpy2');
+        spyOn(subject, 'undelegateEvents').andCallThrough();
         subject.delegateEvents([model, {change: changeSpy, reset: [resetSpy1, resetSpy2], add: 'method'}]);
+      });
+
+      it('should call undelegate events', function() {
+        expect(subject.undelegateEvents).toHaveBeenCalled();
       });
 
       it("should bind backbone events", function() {
@@ -71,10 +76,12 @@ describe('delegateEvents', function() {
         expect(changeSpy).toHaveBeenCalled();
       });
 
-      it("should bind backbone callbacks that are supplied as an array", function() {
+      it("should bind backbone callbacks that are supplied as an array with the expected context", function() {
         model.trigger('reset');
         expect(resetSpy1).toHaveBeenCalled();
+        expect(resetSpy1.mostRecentCall.object).toEqual(subject);
         expect(resetSpy2).toHaveBeenCalled();
+        expect(resetSpy2.mostRecentCall.object).toEqual(subject);
       });
 
       it('should bind the event with the expected context if it is a string', function() {
