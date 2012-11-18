@@ -1,8 +1,9 @@
 describe('delegateEvents', function() {
-  var subject, model, Klass;
+  var subject, model, Klass, methodSpy;
 
   beforeEach(function() {
-    Klass = Backbone.View.extend({}, Backbone.extensions.include);
+    methodSpy = jasmine.createSpy('method');
+    Klass = Backbone.View.extend({method: methodSpy}, Backbone.extensions.include);
     Klass.include(Backbone.extensions.delegateEvents);
     subject = new Klass();
     model = new Backbone.Model({id: 1});
@@ -21,7 +22,7 @@ describe('delegateEvents', function() {
         subject.delegateEvents({'click div': $.noop});
       });
 
-      it("should call jquery delegate for the events", function() {
+      it("should call jQuery delegate for the events", function() {
         expect($.fn.delegate).toHaveBeenCalled();
       });
 
@@ -29,15 +30,15 @@ describe('delegateEvents', function() {
         var firstSpy, secondSpy;
 
         beforeEach(function() {
-          firstSpy = jasmine.createSpy('first'); secondSpy = jasmine.createSpy('second');
+          firstSpy = jasmine.createSpy('first');
+          secondSpy = jasmine.createSpy('second');
 
-          subject = new Klass({
-            el: jasmine.content()[0]
-          });
+          subject = new Klass({el: jasmine.content()[0]});
           jasmine.content().append('<div/>');
 
           subject.delegateEvents({
-            'click div': [firstSpy, secondSpy]
+            'click div': [firstSpy, secondSpy],
+            'mouseenter div': 'method'
           });
         });
 
@@ -46,6 +47,12 @@ describe('delegateEvents', function() {
 
           expect(firstSpy).toHaveBeenCalled();
           expect(secondSpy).toHaveBeenCalled();
+        });
+
+        it('should bind the event with the expected context if it is a string', function() {
+          subject.$("div").trigger('mouseenter');
+          expect(methodSpy).toHaveBeenCalled();
+          expect(methodSpy.mostRecentCall.object).toEqual(subject);
         });
       });
     });
@@ -56,7 +63,7 @@ describe('delegateEvents', function() {
       beforeEach(function() {
         resetSpy1 = jasmine.createSpy('resetSpy1');
         resetSpy2 = jasmine.createSpy('resetSpy2');
-        subject.delegateEvents([model, {change: changeSpy, reset: [resetSpy1, resetSpy2]}]);
+        subject.delegateEvents([model, {change: changeSpy, reset: [resetSpy1, resetSpy2], add: 'method'}]);
       });
 
       it("should bind backbone events", function() {
@@ -68,6 +75,12 @@ describe('delegateEvents', function() {
         model.trigger('reset');
         expect(resetSpy1).toHaveBeenCalled();
         expect(resetSpy2).toHaveBeenCalled();
+      });
+
+      it('should bind the event with the expected context if it is a string', function() {
+        model.trigger('add');
+        expect(methodSpy).toHaveBeenCalled();
+        expect(methodSpy.mostRecentCall.object).toEqual(subject);
       });
 
       it("should be resilient against null backbone objects", function() {
