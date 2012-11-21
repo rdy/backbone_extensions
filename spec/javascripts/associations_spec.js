@@ -370,14 +370,14 @@ describe("associations", function () {
             this.hasMany('wheels', {parse: true});
           };
           subject = new app.Car();
-          spyOn(app.Wheels.prototype, 'reset');
+          spyOn(app.Wheels.prototype, 'add');
         });
 
         describe("#parse", function() {
-          it("should reset the child collection with its data from the response, passing parse: true downwards", function() {
+          it("should add to the child collection with its data from the response, passing parse: true downwards", function() {
             var wheelsData = [{id: 1}, {id: 2}];
             subject.parse({wheels: wheelsData});
-            expect(app.Wheels.prototype.reset).toHaveBeenCalledWith(wheelsData, {parse: true});
+            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
           });
 
           it("should remove the association's key from the response and call the object's normal parse function", function() {
