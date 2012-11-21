@@ -18,6 +18,18 @@ describe("associations", function () {
     expect(_(Backbone.extensions.associations().included).isObject()).toBe(true);
   });
 
+  it("should be resilient against no namespace being provided", function() {
+    var instance, Klass = Backbone.Model.extend({
+      associations: function() {
+        this.hasMany('chickens');
+      }
+    }, Backbone.extensions.include);
+
+    expect(function() { Klass.include(Backbone.extensions.associations()); }).not.toThrow();
+    expect(function() { instance = new Klass(); }).not.toThrow();
+    expect(instance.chickens()).toBeUndefined();
+  });
+
   describe("when the model is initialized", function () {
     var associationsSpy;
     beforeEach(function () {
