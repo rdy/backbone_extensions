@@ -174,24 +174,38 @@ describe("associations", function () {
 
       describe("the association function", function () {
         describe("when the model is initialized without the association's key", function () {
-          beforeEach(function () {
+          beforeEach(function() {
             subject = new app.Car({id: 1});
           });
 
           describe("when options.klass is provided", function() {
+            var options;
             beforeEach(function() {
+              spyOn(app.SpareWheels.prototype, 'initialize').andCallThrough();
+
               app.Car.prototype.associations = function(models, options) {
-                this.hasMany('wheels', {klass: app.SpareWheels});
+                this.hasMany('wheels', _({klass: app.SpareWheels, foo: 'bar'}).defaults(options));
               };
-              subject = new app.Car({id: 1});
+              subject = new app.Car({id: 1}, {parse: true});
             });
 
             it("should return a new instance of the child collection with that class", function () {
               expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
             });
+
+            it("should initialize the new instance of the child collection with the parent's options, without the klass option", function() {
+              expect(app.SpareWheels.prototype.initialize).toHaveBeenCalledWith(null, {parse: true, foo: 'bar'});
+            });
           });
 
           describe("when options.klass is not provided", function() {
+            beforeEach(function () {
+              app.Car.prototype.associations = function(models, options) {
+                this.hasMany('wheels');
+              };
+              subject = new app.Car({id: 1});
+            });
+
             it("should return a new instance of the child collection " +
                 "by inferring the class name from the given name " +
                 "and fetching the constructor from the provided namespace", function () {
@@ -251,14 +265,19 @@ describe("associations", function () {
 
           describe("when options.klass is provided", function() {
             beforeEach(function() {
+              spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
               app.Car.prototype.associations = function(models, options) {
-                this.hasOne('engine', {klass: app.SpareEngine});
+                this.hasOne('engine', _({klass: app.SpareEngine, foo: 'bar'}).defaults(options));
               };
-              subject = new app.Car({id: 1});
+              subject = new app.Car({id: 1}, {parse: true});
             });
 
             it("should return a new instance of the child model with that class", function () {
               expect(subject.engine() instanceof app.SpareEngine).toBe(true);
+            });
+
+            it("should initialize the new instance of the child collection with the parent's options, without the klass option", function() {
+              expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
             });
           });
 
