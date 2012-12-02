@@ -1,1 +1,1 @@
-rvm 1.9.3-perf@backbone_extensions --create
+rvm 1.9.3@backbone_extensions --create
