@@ -1,6 +1,7 @@
 src_files:
   - vendor/assets/javascripts/jquery-1.8.2.js
   - vendor/assets/javascripts/underscore.js
+  - vendor/assets/javascripts/underscore.string.js
   - vendor/assets/javascripts/backbone.js
   - lib/assets/javascripts/backbone_extensions/include.js
   - lib/assets/javascripts/**/*.js

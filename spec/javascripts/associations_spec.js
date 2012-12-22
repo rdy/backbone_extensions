@@ -19,62 +19,18 @@ describe("associations", function () {
   });
 
   it("should be resilient against no namespace being provided", function() {
-    var instance, Klass = Backbone.Model.extend({
-      associations: function() {
-        this.hasMany('chickens');
-      }
-    }, Backbone.extensions.include);
-
+    var instance, Klass = Backbone.Model.extend({}, Backbone.extensions.include);
     expect(function() { Klass.include(Backbone.extensions.associations()); }).not.toThrow();
+    expect(function() { Klass.associations({hasMany: 'chickens'}); }).not.toThrow();
     expect(function() { instance = new Klass(); }).not.toThrow();
     expect(instance.chickens()).toBeUndefined();
   });
 
-  describe("when the model is initialized", function () {
-    var associationsSpy;
-    beforeEach(function () {
-      app.Car.prototype.associations = associationsSpy = jasmine.createSpy('associations');
-      subject = new app.Car({some: 'attrs'}, {some: 'options'});
-    });
-
-    it("should call #associations", function () {
-      expect(associationsSpy).toHaveBeenCalledWith({some: 'attrs'}, {some: 'options'});
-    });
-
-    it("should not pollute the object's prototype with association functions", function() {
-      expect(subject.belongsTo).toBeUndefined();
-      expect(subject.hasMany).toBeUndefined();
-      expect(subject.hasOne).toBeUndefined();
-    });
-
-    describe("#value", function() {
-      it("should return the instance of the object being initialized", function() {
-        associationsSpy.reset();
-        associationsSpy.andCallFake(function() {
-          expect(this.value() instanceof app.Car).toBe(true);
-        });
-        subject = new app.Car();
-        expect(associationsSpy).toHaveBeenCalled();
-      });
-    });
-  });
-
   describe("defining associations", function () {
-    describe("#belongsTo", function () {
+    describe("when called with belongsTo", function () {
       var prius;
       beforeEach(function () {
-        app.Wheel.prototype.associations = function(attrs, options) {
-          this.belongsTo('car', options);
-        };
-      });
-
-      it("should return the associations proxy so association definition can be chained", function() {
-        var associationsSpy = jasmine.createSpy('associations').andCallFake(function(attrs, options) {
-          expect(this.belongsTo('car', options)).toBe(this);
-        });
-        app.Wheel.prototype.associations = associationsSpy;
-        subject = new app.Wheel({id: 1});
-        expect(associationsSpy).toHaveBeenCalled();
+        app.Wheel.associations({belongsTo: 'car'});
       });
 
       it("should define a function for the association", function () {
@@ -87,9 +43,7 @@ describe("associations", function () {
           describe("when the model has a parent collection", function() {
             var collection;
             beforeEach(function() {
-              app.Wheels.prototype.associations = function(models, options) {
-                this.belongsTo('car', options);
-              };
+              app.Wheels.associations({belongsTo: 'car'});
               prius = new app.Car({id: 1});
               subject = new app.Wheel({id: 1});
             });
@@ -97,7 +51,7 @@ describe("associations", function () {
             describe("when the collection has the association", function() {
               beforeEach(function () {
                 expect(subject.collection).toBeUndefined();
-                collection = new app.Wheels([subject], {car: prius});
+                collection = new app.Wheels([subject], {car: function() { return prius; }});
               });
 
               it("should return the collection's instance of the association at runtime, not definition time", function() {
@@ -132,7 +86,7 @@ describe("associations", function () {
         describe("when the model is initialized with an instance of the associated object", function () {
           beforeEach(function () {
             prius = new app.Car({id: 1});
-            subject = new app.Wheel({id: 1}, {car: prius});
+            subject = new app.Wheel({id: 1}, {car: function() { return prius; }});
           });
 
           it("should return the instance of the object", function () {
@@ -148,28 +102,17 @@ describe("associations", function () {
             subject = new app.Wheel({id: 1}, {car: priusFunc});
           });
 
-          it("should be that function", function () {
-            expect(subject.car).toBe(priusFunc);
+          it("should return the same value as that function", function () {
+            expect(subject.car()).toBe(priusFunc());
           });
         });
       });
     });
 
-    describe("#hasMany", function () {
+    describe("when called with hasMany", function () {
       var rims;
       beforeEach(function () {
-        app.Car.prototype.associations = function(models, options) {
-          this.hasMany('wheels', options);
-        };
-      });
-
-      it("should return the associations proxy so association definition can be chained", function() {
-        var associationsSpy = jasmine.createSpy('associations').andCallFake(function(attrs, options) {
-          expect(this.hasMany('wheels', options)).toBe(this);
-        });
-        app.Car.prototype.associations = associationsSpy;
-        subject = new app.Car({id: 1});
-        expect(associationsSpy).toHaveBeenCalled();
+        app.Car.associations({hasMany: 'wheels'});
       });
 
       describe("the association function", function () {
@@ -178,31 +121,21 @@ describe("associations", function () {
             subject = new app.Car({id: 1});
           });
 
-          describe("when options.klass is provided", function() {
+          describe("when options.class is provided", function() {
             var options;
             beforeEach(function() {
-              spyOn(app.SpareWheels.prototype, 'initialize').andCallThrough();
-
-              app.Car.prototype.associations = function(models, options) {
-                this.hasMany('wheels', _({klass: app.SpareWheels, foo: 'bar'}).defaults(options));
-              };
+              app.Car.associations({hasMany: 'wheels', 'class': app.SpareWheels, foo: 'bar'});
               subject = new app.Car({id: 1}, {parse: true});
             });
 
             it("should return a new instance of the child collection with that class", function () {
               expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
             });
-
-            it("should initialize the new instance of the child collection with the parent's options, without the klass option", function() {
-              expect(app.SpareWheels.prototype.initialize).toHaveBeenCalledWith(null, {parse: true, foo: 'bar'});
-            });
           });
 
-          describe("when options.klass is not provided", function() {
+          describe("when options.class is not provided", function() {
             beforeEach(function () {
-              app.Car.prototype.associations = function(models, options) {
-                this.hasMany('wheels');
-              };
+              app.Car.associations({hasMany: 'wheels'});
               subject = new app.Car({id: 1});
             });
 
@@ -217,7 +150,7 @@ describe("associations", function () {
         describe("when the model is initialized with an instance of the associated object", function () {
           beforeEach(function () {
             rims = new app.Wheels([]);
-            subject = new app.Car({id: 1}, {wheels: rims});
+            subject = new app.Car({id: 1}, {wheels: function() { return rims; }});
           });
 
           it("should return the instance of the object", function () {
@@ -233,28 +166,17 @@ describe("associations", function () {
             subject = new app.Car({id: 1}, {wheels: rimsFunc});
           });
 
-          it("should be that function", function () {
-            expect(subject.wheels).toBe(rimsFunc);
+          it("should return the same value as that function", function () {
+            expect(subject.wheels()).toBe(rimsFunc());
           });
         });
       });
     });
 
-    describe("#hasOne", function () {
+    describe("when called with hasOne", function () {
       var v6;
       beforeEach(function () {
-        app.Car.prototype.associations = function(models, options) {
-          this.hasOne('engine', options);
-        };
-      });
-
-      it("should return the associations proxy so association definition can be chained", function() {
-        var associationsSpy = jasmine.createSpy('associations').andCallFake(function(attrs, options) {
-          expect(this.hasOne('engine', options)).toBe(this);
-        });
-        app.Car.prototype.associations = associationsSpy;
-        subject = new app.Car({id: 1});
-        expect(associationsSpy).toHaveBeenCalled();
+        app.Car.associations({hasOne: 'engine'});
       });
 
       describe("the association function", function () {
@@ -263,12 +185,10 @@ describe("associations", function () {
             subject = new app.Car({id: 1});
           });
 
-          describe("when options.klass is provided", function() {
+          describe("when options.class is provided", function() {
             beforeEach(function() {
               spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
-              app.Car.prototype.associations = function(models, options) {
-                this.hasOne('engine', _({klass: app.SpareEngine, foo: 'bar'}).defaults(options));
-              };
+              app.Car.associations({hasOne: 'engine', 'class': app.SpareEngine, foo: 'bar'});
               subject = new app.Car({id: 1}, {parse: true});
             });
 
@@ -276,12 +196,13 @@ describe("associations", function () {
               expect(subject.engine() instanceof app.SpareEngine).toBe(true);
             });
 
-            it("should initialize the new instance of the child collection with the parent's options, without the klass option", function() {
+            it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
+              expect(subject.engine()).toBeDefined();
               expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
             });
           });
 
-          describe("when options.klass is not provided", function() {
+          describe("when options.class is not provided", function() {
             it("should return a new instance of the child model " +
                 "by inferring the class name from the given name " +
                 "and fetching the constructor from the provided namespace", function () {
@@ -293,7 +214,7 @@ describe("associations", function () {
         describe("when the model is initialized with an instance of the associated object", function () {
           beforeEach(function () {
             v6 = new app.Engine([]);
-            subject = new app.Car({id: 1}, {engine: v6});
+            subject = new app.Car({id: 1}, {engine: function() { return v6; }});
           });
 
           it("should return the instance of the object", function () {
@@ -309,8 +230,8 @@ describe("associations", function () {
             subject = new app.Car({id: 1}, {engine: v6Func});
           });
 
-          it("should be that function", function () {
-            expect(subject.engine).toBe(v6Func);
+          it("should return the same value as that function", function () {
+            expect(subject.engine()).toBe(v6Func());
           });
         });
       });
@@ -326,9 +247,7 @@ describe("associations", function () {
 
       describe("when the association is defined with parse: true", function() {
         beforeEach(function() {
-          app.Car.prototype.associations = function() {
-            this.hasOne('engine', {parse: true});
-          };
+          app.Car.associations({hasOne: 'engine', parse: true});
           subject = new app.Car();
           spyOn(app.Engine.prototype, 'clear');
           spyOn(app.Engine.prototype, 'set');
@@ -340,13 +259,15 @@ describe("associations", function () {
             var engineData = {cylinders: 6, manufacturer: 'toyota'};
             subject.parse({engine: engineData});
             expect(app.Engine.prototype.clear).toHaveBeenCalledWith({silent: true});
-            expect(app.Engine.prototype.set).toHaveBeenCalledWith(engineData, {silent: true, parse: true});
+            expect(app.Engine.prototype.set).toHaveBeenCalled();
+            expect(app.Engine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
+            expect(app.Engine.prototype.set.mostRecentCall.args[1]).toEqual({parse: true});
             expect(app.Engine.prototype.change).toHaveBeenCalled();
           });
 
-          it("should remove the association's key from the response and call the object's normal parse function", function() {
+          it("should call the object's normal parse function", function() {
             subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
-            expect(baseParseSpy).toHaveBeenCalledWith({foo: 'bar', cow: ['moo']});
+            expect(baseParseSpy).toHaveBeenCalledWith({engine : { cylinders : 6 }, foo: 'bar', cow: ['moo']});
           });
         });
       });
@@ -355,9 +276,7 @@ describe("associations", function () {
         var associationParseSpy, associationParseResult = {water: ['H', 'O', 'H']};
         beforeEach(function() {
           associationParseSpy = jasmine.createSpy('association parse').andCallFake(function() { return associationParseResult; });
-          app.Car.prototype.associations = function() {
-            this.hasOne('engine', {parse: associationParseSpy});
-          };
+          app.Car.associations({hasOne: 'engine', parse: associationParseSpy});
           subject = new app.Car();
         });
 
@@ -367,19 +286,12 @@ describe("associations", function () {
             subject.parse(response);
             expect(associationParseSpy).toHaveBeenCalledWith(response);
           });
-
-          it("should call the object's normal parse function", function() {
-            subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
-            expect(baseParseSpy).toHaveBeenCalledWith(associationParseResult);
-          });
         });
       });
 
       describe("when the association is defined with parse as falsy", function() {
         beforeEach(function() {
-          app.Car.prototype.associations = function() {
-            this.hasOne('engine', {parse: false});
-          };
+          app.Car.associations({hasOne: 'engine', parse: false});
           subject = new app.Car();
         });
 
@@ -397,9 +309,7 @@ describe("associations", function () {
 
       describe("when the association is defined with parse: true", function() {
         beforeEach(function() {
-          app.Car.prototype.associations = function() {
-            this.hasMany('wheels', {parse: true});
-          };
+          app.Car.associations({hasMany: 'wheels', parse: true});
           subject = new app.Car();
           spyOn(app.Wheels.prototype, 'add');
         });
@@ -410,11 +320,6 @@ describe("associations", function () {
             subject.parse({wheels: wheelsData});
             expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
           });
-
-          it("should remove the association's key from the response and call the object's normal parse function", function() {
-            subject.parse({wheels: [1,2,3], foo: 'bar', cow: ['moo']});
-            expect(baseParseSpy).toHaveBeenCalledWith({foo: 'bar', cow: ['moo']});
-          });
         });
       });
 
@@ -422,9 +327,7 @@ describe("associations", function () {
         var associationParseSpy, associationParseResult = {water: ['H', 'O', 'H']};
         beforeEach(function() {
           associationParseSpy = jasmine.createSpy('association parse').andCallFake(function() { return associationParseResult; });
-          app.Car.prototype.associations = function() {
-            this.hasMany('wheels', {parse: associationParseSpy});
-          };
+          app.Car.associations({hasMany: 'wheels', parse: associationParseSpy});
           subject = new app.Car();
         });
 
@@ -434,19 +337,12 @@ describe("associations", function () {
             subject.parse(response);
             expect(associationParseSpy).toHaveBeenCalledWith(response);
           });
-
-          it("should call the object's normal parse function", function() {
-            subject.parse({wheels: [1,2,3], foo: 'bar', cow: ['moo']});
-            expect(baseParseSpy).toHaveBeenCalledWith(associationParseResult);
-          });
         });
       });
 
       describe("when the association is defined with parse as falsy", function() {
         beforeEach(function() {
-          app.Car.prototype.associations = function() {
-            this.hasMany('wheels', {parse: false});
-          };
+          app.Car.associations({hasMany: 'wheels', parse: false});
           subject = new app.Car();
         });
 
