@@ -431,10 +431,10 @@ describe('associations', function () {
       describe('when the association is defined with parse: true', function() {
         var changeSpy;
         beforeEach(function() {
-          app.Car.associations({hasOne: 'engine', parse: true});
+          app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true});
           subject = new app.Car();
-          spyOn(app.Engine.prototype, 'clear').andCallThrough();
-          spyOn(app.Engine.prototype, 'set').andCallThrough();
+          spyOn(app.SpareEngine.prototype, 'clear').andCallThrough();
+          spyOn(app.SpareEngine.prototype, 'set').andCallThrough();
           changeSpy = jasmine.createSpy('change');
           subject.engine().on('change', changeSpy);
         });
@@ -442,12 +442,12 @@ describe('associations', function () {
         describe('#parse', function() {
           it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
             var engineData = {cylinders: 6, manufacturer: 'toyota'};
-            subject.parse({engine: engineData});
-            expect(app.Engine.prototype.clear).toHaveBeenCalled();
-            expect(_(app.Engine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
-            expect(app.Engine.prototype.set).toHaveBeenCalled();
-            expect(app.Engine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
-            expect(_(app.Engine.prototype.set.mostRecentCall.args[1]).pick('parse')).toEqual({parse: true});
+            subject.parse({spare_engine: engineData});
+            expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
+            expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
+            expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
+            expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
+            expect(_(app.SpareEngine.prototype.set.mostRecentCall.args[1]).pick('parse')).toEqual({parse: true});
             expect(changeSpy).toHaveBeenCalled();
           });
 
