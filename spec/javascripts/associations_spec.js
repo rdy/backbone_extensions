@@ -3,6 +3,7 @@ describe('associations', function () {
   beforeEach(function () {
     app = {
       Car: Backbone.Model.extend({}, Backbone.extensions.include),
+      Cars: Backbone.Collection.extend({}, Backbone.extensions.include),
       Wheels: Backbone.Collection.extend({}, Backbone.extensions.include),
       SpareWheels: Backbone.Collection.extend({}, Backbone.extensions.include),
       Wheel: Backbone.Model.extend({}, Backbone.extensions.include),
@@ -124,7 +125,6 @@ describe('associations', function () {
                 expect(subject.car()).toBeUndefined();
               });
             });
-
           });
         });
 
@@ -168,7 +168,6 @@ describe('associations', function () {
 
           describe('when options.class', function() {
             describe('when it is provided', function() {
-              var options;
               beforeEach(function() {
                 app.Car.associations({hasMany: 'wheels', 'class': app.SpareWheels, foo: 'bar'});
                 subject = new app.Car({id: 1}, {parse: true});
@@ -287,6 +286,48 @@ describe('associations', function () {
                   'by inferring the class name from the given name ' +
                   'and fetching the constructor from the provided namespace', function () {
                 expect(subject.engine() instanceof app.Engine).toBe(true);
+              });
+            });
+          });
+
+          describe("for the model's collection", function() {
+            var engine;
+            beforeEach(function() {
+              app.Cars.associations({hasOne: 'engine'});
+              engine = new app.Engine({id: 1});
+              subject = new app.Car({id: 1});
+            });
+            describe('when it has a parent collection', function() {
+              var collection;
+
+              describe('when the collection has the association', function() {
+                beforeEach(function () {
+                  expect(subject.collection).toBeUndefined();
+                  collection = new app.Cars([subject], {engine: function() { return engine; }});
+                });
+
+                it("should return the collection's instance of the association at runtime, not definition time", function() {
+                  expect(collection.engine()).toBe(engine);
+                  expect(subject.engine()).toBe(collection.engine());
+                });
+              });
+
+              describe('when the collection does not have the association', function() {
+                beforeEach(function () {
+                  collection = new app.Cars([subject]);
+                });
+
+                it('should return a new model', function () {
+                  expect(subject.engine() instanceof app.Engine).toBe(true);
+                  expect(subject.engine()).not.toEqual(engine);
+                });
+              });
+            });
+
+            describe('when it does not have parent collection', function() {
+              it('should return a new model', function () {
+                expect(subject.engine() instanceof app.Engine).toBe(true);
+                expect(subject.engine()).not.toEqual(engine);
               });
             });
           });
