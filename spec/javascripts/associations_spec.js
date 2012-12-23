@@ -191,6 +191,38 @@ describe('associations', function () {
               });
             });
           });
+
+          describe('when options.className', function() {
+            describe('when it is provided', function() {
+              beforeEach(function() {
+                app.Car.associations({hasMany: 'wheels', className: 'SpareWheels', foo: 'bar'});
+                subject = new app.Car({id: 1}, {parse: true});
+                spyOn(app.SpareWheels.prototype, 'initialize').andCallThrough();
+              });
+
+              it('should return a new instance of the child collection with that class', function () {
+                expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
+              });
+
+              it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
+                expect(subject.wheels()).toBeDefined();
+                expect(app.SpareWheels.prototype.initialize).toHaveBeenCalledWith(null, {parse: true, foo: 'bar'});
+              });
+            });
+
+            describe('when it is not provided', function() {
+              beforeEach(function () {
+                app.Car.associations({hasMany: 'wheels'});
+                subject = new app.Car({id: 1});
+              });
+
+              it('should return a new instance of the child collection ' +
+                  'by inferring the class name from the given name ' +
+                  'and fetching the constructor from the provided namespace', function () {
+                expect(subject.wheels() instanceof app.Wheels).toBe(true);
+              });
+            });
+          });
         });
 
         describe('when the model is initialized with an instance of the associated object', function () {
