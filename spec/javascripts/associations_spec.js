@@ -204,7 +204,7 @@ describe('associations', function () {
                 expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
               });
 
-              it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
+              it("should initialize the new instance of the child collection with the parent's options, without the className option", function() {
                 expect(subject.wheels()).toBeDefined();
                 expect(app.SpareWheels.prototype.initialize).toHaveBeenCalledWith(null, {parse: true, foo: 'bar'});
               });
@@ -292,9 +292,11 @@ describe('associations', function () {
           });
 
           describe('when options.class', function() {
+            beforeEach(function() {
+              subject = new app.Car({id: 1});
+            });
             describe('when it is provided', function() {
               beforeEach(function() {
-                subject = new app.Car({id: 1});
                 spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
                 app.Car.associations({hasOne: 'engine', 'class': app.SpareEngine, foo: 'bar'});
                 subject = new app.Car({id: 1}, {parse: true});
@@ -311,10 +313,37 @@ describe('associations', function () {
             });
 
             describe('when is not provided', function() {
-              beforeEach(function() {
-                subject = new app.Car({id: 1});
-              });
               it('should return a new instance of the child model ' +
+                  'by inferring the class name from the given name ' +
+                  'and fetching the constructor from the provided namespace', function () {
+                expect(subject.engine() instanceof app.Engine).toBe(true);
+              });
+            });
+          });
+
+          describe('when options.className', function() {
+            beforeEach(function() {
+              subject = new app.Car({id: 1});
+            });
+            describe('when it is provided', function() {
+              beforeEach(function() {
+                spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
+                app.Car.associations({hasOne: 'engine', className: 'SpareEngine', foo: 'bar'});
+                subject = new app.Car({id: 1}, {parse: true});
+              });
+
+              it('should return a new instance of the child collection with that class', function () {
+                expect(subject.engine() instanceof app.SpareEngine).toBe(true);
+              });
+
+              it("should initialize the new instance of the child collection with the parent's options, without the className option", function() {
+                expect(subject.engine()).toBeDefined();
+                expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
+              });
+            });
+
+            describe('when it is not provided', function() {
+              it('should return a new instance of the child collection ' +
                   'by inferring the class name from the given name ' +
                   'and fetching the constructor from the provided namespace', function () {
                 expect(subject.engine() instanceof app.Engine).toBe(true);
