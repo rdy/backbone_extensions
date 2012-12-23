@@ -50,9 +50,9 @@ describe('associations', function () {
 
       describe('the association function', function () {
         describe("when the model is initialized without the association's key", function () {
-          describe('when the model is initialized with a through key', function() {
+          describe('when options.through', function() {
             var body;
-            describe('when the through value is a string', function() {
+            describe('when it is a string', function() {
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'body'}, {belongsTo: 'car', through: 'body'});
 
@@ -66,7 +66,7 @@ describe('associations', function () {
                 expect(subject.car()).toEqual(body.car());
               });
             });
-            describe('when the through value is a function', function() {
+            describe('when it is a function', function() {
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'body'}, {belongsTo: 'car', through: function() { return this.body(); } });
 
@@ -82,46 +82,49 @@ describe('associations', function () {
             });
           });
 
-          describe('when the model has a parent collection', function() {
-            var collection;
-            beforeEach(function() {
-              app.Wheels.associations({belongsTo: 'car'});
-              prius = new app.Car({id: 1});
-              subject = new app.Wheel({id: 1});
+          describe("for the model's collection", function() {
+            describe('when it has a parent collection', function() {
+              var collection;
+              beforeEach(function() {
+                app.Wheels.associations({belongsTo: 'car'});
+                prius = new app.Car({id: 1});
+                subject = new app.Wheel({id: 1});
+              });
+
+              describe('when the collection has the association', function() {
+                beforeEach(function () {
+                  expect(subject.collection).toBeUndefined();
+                  collection = new app.Wheels([subject], {car: function() { return prius; }});
+                });
+
+                it("should return the collection's instance of the association at runtime, not definition time", function() {
+                  expect(collection.car()).toBe(prius);
+                  expect(subject.car()).toBe(collection.car());
+                });
+              });
+
+              describe('when the collection does not have the association', function() {
+                beforeEach(function () {
+                  collection = new app.Wheels([subject]);
+                });
+
+                it('should return undefined', function() {
+                  expect(subject.car()).toBeUndefined();
+                });
+              });
             });
 
-            describe('when the collection has the association', function() {
+            describe('when it does not have parent collection', function() {
               beforeEach(function () {
-                expect(subject.collection).toBeUndefined();
-                collection = new app.Wheels([subject], {car: function() { return prius; }});
+                subject = new app.Wheel({id: 1});
+                expect(subject.car()).toBeUndefined();
               });
 
-              it("should return the collection's instance of the association at runtime, not definition time", function() {
-                expect(collection.car()).toBe(prius);
-                expect(subject.car()).toBe(collection.car());
-              });
-            });
-
-            describe('when the collection does not have the association', function() {
-              beforeEach(function () {
-                collection = new app.Wheels([subject]);
-              });
-
-              it('should return undefined', function() {
+              it('should return undefined', function () {
                 expect(subject.car()).toBeUndefined();
               });
             });
-          });
 
-          describe('when the model does not have a parent collection', function() {
-            beforeEach(function () {
-              subject = new app.Wheel({id: 1});
-              expect(subject.car()).toBeUndefined();
-            });
-
-            it('should return undefined', function () {
-              expect(subject.car()).toBeUndefined();
-            });
           });
         });
 
@@ -163,28 +166,30 @@ describe('associations', function () {
             subject = new app.Car({id: 1});
           });
 
-          describe('when options.class is provided', function() {
-            var options;
-            beforeEach(function() {
-              app.Car.associations({hasMany: 'wheels', 'class': app.SpareWheels, foo: 'bar'});
-              subject = new app.Car({id: 1}, {parse: true});
+          describe('when options.class', function() {
+            describe('when it is provided', function() {
+              var options;
+              beforeEach(function() {
+                app.Car.associations({hasMany: 'wheels', 'class': app.SpareWheels, foo: 'bar'});
+                subject = new app.Car({id: 1}, {parse: true});
+              });
+
+              it('should return a new instance of the child collection with that class', function () {
+                expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
+              });
             });
 
-            it('should return a new instance of the child collection with that class', function () {
-              expect(subject.wheels() instanceof app.SpareWheels).toBe(true);
-            });
-          });
+            describe('when it is not provided', function() {
+              beforeEach(function () {
+                app.Car.associations({hasMany: 'wheels'});
+                subject = new app.Car({id: 1});
+              });
 
-          describe('when options.class is not provided', function() {
-            beforeEach(function () {
-              app.Car.associations({hasMany: 'wheels'});
-              subject = new app.Car({id: 1});
-            });
-
-            it('should return a new instance of the child collection ' +
-                'by inferring the class name from the given name ' +
-                'and fetching the constructor from the provided namespace', function () {
-              expect(subject.wheels() instanceof app.Wheels).toBe(true);
+              it('should return a new instance of the child collection ' +
+                  'by inferring the class name from the given name ' +
+                  'and fetching the constructor from the provided namespace', function () {
+                expect(subject.wheels() instanceof app.Wheels).toBe(true);
+              });
             });
           });
         });
@@ -223,9 +228,9 @@ describe('associations', function () {
 
       describe('the association function', function () {
         describe("when the model is initialized without the association's key", function () {
-          describe('when the model is initialized with a through key', function() {
+          describe('when options.through', function() {
             var engineBlock;
-            describe('when the through value is a string', function() {
+            describe('when it is a string', function() {
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'engineBlock'}, {hasOne: 'car', through: 'engineBlock'});
 
@@ -239,7 +244,7 @@ describe('associations', function () {
                 expect(subject.car()).toEqual(engineBlock.car());
               });
             });
-            describe('when the through value is a function', function() {
+            describe('when it is a function', function() {
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'engineBlock'}, {hasOne: 'car', through: function() { return this.engineBlock(); } });
 
@@ -255,32 +260,34 @@ describe('associations', function () {
             });
           });
 
-          describe('when options.class is provided', function() {
-            beforeEach(function() {
-              subject = new app.Car({id: 1});
-              spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
-              app.Car.associations({hasOne: 'engine', 'class': app.SpareEngine, foo: 'bar'});
-              subject = new app.Car({id: 1}, {parse: true});
+          describe('when options.class', function() {
+            describe('when it is provided', function() {
+              beforeEach(function() {
+                subject = new app.Car({id: 1});
+                spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
+                app.Car.associations({hasOne: 'engine', 'class': app.SpareEngine, foo: 'bar'});
+                subject = new app.Car({id: 1}, {parse: true});
+              });
+
+              it('should return a new instance of the child model with that class', function () {
+                expect(subject.engine() instanceof app.SpareEngine).toBe(true);
+              });
+
+              it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
+                expect(subject.engine()).toBeDefined();
+                expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
+              });
             });
 
-            it('should return a new instance of the child model with that class', function () {
-              expect(subject.engine() instanceof app.SpareEngine).toBe(true);
-            });
-
-            it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
-              expect(subject.engine()).toBeDefined();
-              expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
-            });
-          });
-
-          describe('when options.class is not provided', function() {
-            beforeEach(function() {
-              subject = new app.Car({id: 1});
-            });
-            it('should return a new instance of the child model ' +
-                'by inferring the class name from the given name ' +
-                'and fetching the constructor from the provided namespace', function () {
-              expect(subject.engine() instanceof app.Engine).toBe(true);
+            describe('when is not provided', function() {
+              beforeEach(function() {
+                subject = new app.Car({id: 1});
+              });
+              it('should return a new instance of the child model ' +
+                  'by inferring the class name from the given name ' +
+                  'and fetching the constructor from the provided namespace', function () {
+                expect(subject.engine() instanceof app.Engine).toBe(true);
+              });
             });
           });
         });
