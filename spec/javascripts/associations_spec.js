@@ -223,12 +223,41 @@ describe('associations', function () {
 
       describe('the association function', function () {
         describe("when the model is initialized without the association's key", function () {
-          beforeEach(function () {
-            subject = new app.Car({id: 1});
+          describe('when the model is initialized with a through key', function() {
+            var engineBlock;
+            describe('when the through value is a string', function() {
+              beforeEach(function() {
+                app.Wheel.associations({belongsTo: 'engineBlock'}, {hasOne: 'car', through: 'engineBlock'});
+
+                engineBlock = jasmine.createSpyObj('engineBlock', ['car']);
+                engineBlock.car.andReturn('mockCar');
+
+                subject = new app.Wheel({id: 1}, {engineBlock: function() { return engineBlock; }});
+              });
+
+              it('should use the string called on instance to return the association', function() {
+                expect(subject.car()).toEqual(engineBlock.car());
+              });
+            });
+            describe('when the through value is a function', function() {
+              beforeEach(function() {
+                app.Wheel.associations({belongsTo: 'engineBlock'}, {hasOne: 'car', through: function() { return this.engineBlock(); } });
+
+                engineBlock = jasmine.createSpyObj('engineBlock', ['car']);
+                engineBlock.car.andReturn('mockCar');
+
+                subject = new app.Wheel({id: 1}, {engineBlock: function() { return engineBlock; }});
+              });
+
+              it('should use that function called on the instance to return the association', function() {
+                expect(subject.car()).toEqual(engineBlock.car());
+              });
+            });
           });
 
           describe('when options.class is provided', function() {
             beforeEach(function() {
+              subject = new app.Car({id: 1});
               spyOn(app.SpareEngine.prototype, 'initialize').andCallThrough();
               app.Car.associations({hasOne: 'engine', 'class': app.SpareEngine, foo: 'bar'});
               subject = new app.Car({id: 1}, {parse: true});
@@ -245,6 +274,9 @@ describe('associations', function () {
           });
 
           describe('when options.class is not provided', function() {
+            beforeEach(function() {
+              subject = new app.Car({id: 1});
+            });
             it('should return a new instance of the child model ' +
                 'by inferring the class name from the given name ' +
                 'and fetching the constructor from the provided namespace', function () {
