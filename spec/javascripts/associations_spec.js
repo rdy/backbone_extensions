@@ -26,6 +26,16 @@ describe('associations', function () {
     expect(instance.chickens()).toBeUndefined();
   });
 
+  describe('.extend', function() {
+    it('should call associations withe the provided associations', function() {
+      spyOn(app.Car, 'associations');
+      var Klass = app.Car.extend({associations: {hasOne: 'engine'}});
+      expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'});
+      Klass = app.Car.extend({associations: [{hasOne: 'engine'}, {hasMany: 'wheels'}]});
+      expect(app.Car.associations).toHaveBeenCalledWith([{hasOne: 'engine'}, {hasMany: 'wheels'}]);
+    });
+  });
+
   describe('defining associations', function () {
     describe('when called with belongsTo', function () {
       var prius;
