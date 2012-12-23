@@ -51,8 +51,8 @@ describe('associations', function () {
       describe('the association function', function () {
         describe("when the model is initialized without the association's key", function () {
           describe('when the model is initialized with a through key', function() {
+            var body;
             describe('when the through value is a string', function() {
-              var body;
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'body'}, {belongsTo: 'car', through: 'body'});
 
@@ -61,12 +61,12 @@ describe('associations', function () {
 
                 subject = new app.Wheel({id: 1}, {body: function() { return body; }});
               });
+
               it('should use the string called on instance to return the association', function() {
                 expect(subject.car()).toEqual(body.car());
               });
             });
             describe('when the through value is a function', function() {
-              var body;
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'body'}, {belongsTo: 'car', through: function() { return this.body(); } });
 
@@ -75,6 +75,7 @@ describe('associations', function () {
 
                 subject = new app.Wheel({id: 1}, {body: function() { return body; }});
               });
+
               it('should use that function called on the instance to return the association', function() {
                 expect(subject.car()).toEqual(body.car());
               });
