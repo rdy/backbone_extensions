@@ -27,17 +27,7 @@ describe('associations', function () {
     expect(instance.chickens()).toBeUndefined();
   });
 
-  describe('.extend', function() {
-    it('should call associations withe the provided associations', function() {
-      spyOn(app.Car, 'associations');
-      var Klass = app.Car.extend({associations: {hasOne: 'engine'}});
-      expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'});
-      Klass = app.Car.extend({associations: [{hasOne: 'engine'}, {hasMany: 'wheels'}]});
-      expect(app.Car.associations).toHaveBeenCalledWith([{hasOne: 'engine'}, {hasMany: 'wheels'}]);
-    });
-  });
-
-  describe('defining associations', function () {
+  describe('.associations', function () {
     describe('when called with belongsTo', function () {
       var prius;
       beforeEach(function () {
@@ -421,7 +411,17 @@ describe('associations', function () {
     });
   });
 
-  describe('augmenting #parse', function() {
+  describe('.extend', function() {
+    it('should call associations withe the provided associations', function() {
+      spyOn(app.Car, 'associations');
+      var Klass = app.Car.extend({associations: {hasOne: 'engine'}});
+      expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'});
+      Klass = app.Car.extend({associations: [{hasOne: 'engine'}, {hasMany: 'wheels'}]});
+      expect(app.Car.associations).toHaveBeenCalledWith([{hasOne: 'engine'}, {hasMany: 'wheels'}]);
+    });
+  });
+
+  describe('#parse', function() {
     describe('for hasOne', function() {
       var baseParseSpy;
       beforeEach(function() {
@@ -439,22 +439,20 @@ describe('associations', function () {
           subject.engine().on('change', changeSpy);
         });
 
-        describe('#parse', function() {
-          it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
-            var engineData = {cylinders: 6, manufacturer: 'toyota'};
-            subject.parse({spare_engine: engineData});
-            expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
-            expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
-            expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
-            expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
-            expect(_(app.SpareEngine.prototype.set.mostRecentCall.args[1]).pick('parse')).toEqual({parse: true});
-            expect(changeSpy).toHaveBeenCalled();
-          });
+        it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
+          var engineData = {cylinders: 6, manufacturer: 'toyota'};
+          subject.parse({spare_engine: engineData});
+          expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
+          expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
+          expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
+          expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
+          expect(_(app.SpareEngine.prototype.set.mostRecentCall.args[1]).pick('parse')).toEqual({parse: true});
+          expect(changeSpy).toHaveBeenCalled();
+        });
 
-          it("should call the object's normal parse function", function() {
-            subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
-            expect(baseParseSpy).toHaveBeenCalledWith({engine : { cylinders : 6 }, foo: 'bar', cow: ['moo']});
-          });
+        it("should call the object's normal parse function", function() {
+          subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
+          expect(baseParseSpy).toHaveBeenCalledWith({engine : { cylinders : 6 }, foo: 'bar', cow: ['moo']});
         });
       });
 
@@ -466,12 +464,10 @@ describe('associations', function () {
           subject = new app.Car();
         });
 
-        describe('#parse', function() {
-          it("should call the association's provided parse function", function() {
-            var response = {foo: 'bar'};
-            subject.parse(response);
-            expect(associationParseSpy).toHaveBeenCalledWith(response);
-          });
+        it("should call the association's provided parse function", function() {
+          var response = {foo: 'bar'};
+          subject.parse(response);
+          expect(associationParseSpy).toHaveBeenCalledWith(response);
         });
       });
 
@@ -500,12 +496,10 @@ describe('associations', function () {
           spyOn(app.Wheels.prototype, 'add');
         });
 
-        describe('#parse', function() {
-          it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
-            var wheelsData = [{id: 1}, {id: 2}];
-            subject.parse({wheels: wheelsData});
-            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
-          });
+        it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
+          var wheelsData = [{id: 1}, {id: 2}];
+          subject.parse({wheels: wheelsData});
+          expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
         });
       });
 
@@ -517,12 +511,10 @@ describe('associations', function () {
           subject = new app.Car();
         });
 
-        describe('#parse', function() {
-          it("should call the association's provided parse function", function() {
-            var response = {foo: 'bar'};
-            subject.parse(response);
-            expect(associationParseSpy).toHaveBeenCalledWith(response);
-          });
+        it("should call the association's provided parse function", function() {
+          var response = {foo: 'bar'};
+          subject.parse(response);
+          expect(associationParseSpy).toHaveBeenCalledWith(response);
         });
       });
 
