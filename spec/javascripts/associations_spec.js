@@ -156,6 +156,20 @@ describe('associations', function () {
             subject = new app.Car({id: 1});
           });
 
+          describe('when options.inverseOf', function() {
+            describe('when it is a string', function() {
+              beforeEach(function() {
+                app.Wheels.associations({belongsTo: 'car'});
+                app.Car.associations({hasMany: 'wheels', inverseOf: 'car'});
+                subject = new app.Car({id: 1});
+              });
+
+              it('should define the inverse of association using this with the named option', function() {
+                expect(subject.wheels().car()).toEqual(subject);
+              });
+            });
+          });
+
           describe('when options.class', function() {
             describe('when it is provided', function() {
               beforeEach(function() {
@@ -249,6 +263,20 @@ describe('associations', function () {
 
       describe('the association function', function () {
         describe("when the model is initialized without the association's key", function () {
+          describe('when options.inverseOf', function() {
+            describe('when it is a string', function() {
+              beforeEach(function() {
+                app.Engine.associations({belongsTo: 'car'});
+                app.Car.associations({hasOne: 'engine', inverseOf: 'car'});
+                subject = new app.Car({id: 1});
+              });
+
+              it('should define the inverse of association using this with the named option', function() {
+                expect(subject.engine().car()).toEqual(subject);
+              });
+            });
+          });
+
           describe('when options.through', function() {
             var engineBlock;
             describe('when it is a string', function() {
