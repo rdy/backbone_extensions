@@ -299,7 +299,8 @@ describe('associations', function () {
 
               it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
                 expect(subject.engine()).toBeDefined();
-                expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
+                expect(app.SpareEngine.prototype.initialize).toHaveBeenCalled();
+                expect(app.SpareEngine.prototype.initialize.mostRecentCall.args[1]).toEqual({parse: true, foo: 'bar'});
               });
             });
 
@@ -329,7 +330,8 @@ describe('associations', function () {
 
               it("should initialize the new instance of the child collection with the parent's options, without the className option", function() {
                 expect(subject.engine()).toBeDefined();
-                expect(app.SpareEngine.prototype.initialize).toHaveBeenCalledWith({}, {parse: true, foo: 'bar'});
+                expect(app.SpareEngine.prototype.initialize).toHaveBeenCalled();
+                expect(app.SpareEngine.prototype.initialize.mostRecentCall.args[1]).toEqual({parse: true, foo: 'bar'});
               });
             });
 
