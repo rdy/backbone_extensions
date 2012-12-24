@@ -28,17 +28,22 @@ describe('associations', function () {
   });
 
   describe('.belongsTo', function() {
-    var prius;
-    beforeEach(function () {
-      app.Wheel.belongsTo('car');
+    it('should return the class', function() {
+      expect(app.Wheel.belongsTo('car')).toBe(app.Wheel);
     });
 
     it('should define a function for the association', function () {
+      app.Wheel.belongsTo('car');
       subject = new app.Wheel({id: 1});
       expect(_(subject.car).isFunction()).toBe(true);
     });
 
     describe('the association function', function () {
+      var prius;
+      beforeEach(function () {
+        app.Wheel.belongsTo('car');
+      });
+
       describe("when the model is initialized without the association's key", function () {
         describe('when options.through', function() {
           var body;
@@ -145,12 +150,22 @@ describe('associations', function () {
   });
 
   describe('.hasOne', function() {
-    var v6;
-    beforeEach(function () {
+    it('should return the class', function() {
+      expect(app.Car.hasOne('engine')).toBe(app.Car);
+    });
+
+    it('should define a function for the association', function () {
       app.Car.hasOne('engine');
+      subject = new app.Car({id: 1});
+      expect(_(subject.engine).isFunction()).toBe(true);
     });
 
     describe('the association function', function () {
+      var v6;
+      beforeEach(function () {
+        app.Car.hasOne('engine');
+      });
+
       describe("when the model is initialized without the association's key", function () {
         describe('when options.inverseOf', function() {
           describe('when it is a string', function() {
@@ -331,12 +346,22 @@ describe('associations', function () {
   });
 
   describe('.hasMany', function() {
-    var rims;
-    beforeEach(function () {
+    it('should return the class', function() {
+      expect(app.Car.hasMany('wheels')).toBe(app.Car);
+    });
+
+    it('should define a function for the association', function () {
       app.Car.hasMany('wheels');
+      subject = new app.Car({id: 1});
+      expect(_(subject.wheels).isFunction()).toBe(true);
     });
 
     describe('the association function', function () {
+      var rims;
+      beforeEach(function () {
+        app.Car.hasMany('wheels');
+      });
+
       describe("when the model is initialized without the association's key", function () {
         beforeEach(function() {
           subject = new app.Car({id: 1});
