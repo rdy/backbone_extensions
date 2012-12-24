@@ -50,7 +50,7 @@ describe('associations', function () {
                 body = jasmine.createSpyObj('body', ['car']);
                 body.car.andReturn('mockCar');
 
-                subject = new app.Wheel({id: 1}, {body: function() { return body; }});
+                subject = new app.Wheel({id: 1}, {body: body});
               });
 
               it('should use the string called on instance to return the association', function() {
@@ -64,7 +64,7 @@ describe('associations', function () {
                 body = jasmine.createSpyObj('body', ['car']);
                 body.car.andReturn('mockCar');
 
-                subject = new app.Wheel({id: 1}, {body: function() { return body; }});
+                subject = new app.Wheel({id: 1}, {body: body});
               });
 
               it('should use that function called on the instance to return the association', function() {
@@ -85,7 +85,7 @@ describe('associations', function () {
               describe('when the collection has the association', function() {
                 beforeEach(function () {
                   expect(subject.collection).toBeUndefined();
-                  collection = new app.Wheels([subject], {car: function() { return prius; }});
+                  collection = new app.Wheels([subject], {car: prius});
                 });
 
                 it("should return the collection's instance of the association at runtime, not definition time", function() {
@@ -121,7 +121,7 @@ describe('associations', function () {
         describe('when the model is initialized with an instance of the associated object', function () {
           beforeEach(function () {
             prius = new app.Car({id: 1});
-            subject = new app.Wheel({id: 1}, {car: function() { return prius; }});
+            subject = new app.Wheel({id: 1}, {car: prius});
           });
 
           it('should return the instance of the object', function () {
@@ -218,7 +218,7 @@ describe('associations', function () {
         describe('when the model is initialized with an instance of the associated object', function () {
           beforeEach(function () {
             rims = new app.Wheels([]);
-            subject = new app.Car({id: 1}, {wheels: function() { return rims; }});
+            subject = new app.Car({id: 1}, {wheels: rims});
           });
 
           it('should return the instance of the object', function () {
@@ -258,13 +258,14 @@ describe('associations', function () {
                 engineBlock = jasmine.createSpyObj('engineBlock', ['car']);
                 engineBlock.car.andReturn('mockCar');
 
-                subject = new app.Wheel({id: 1}, {engineBlock: function() { return engineBlock; }});
+                subject = new app.Wheel({id: 1}, {engineBlock: engineBlock});
               });
 
               it('should use the string called on instance to return the association', function() {
                 expect(subject.car()).toEqual(engineBlock.car());
               });
             });
+
             describe('when it is a function', function() {
               beforeEach(function() {
                 app.Wheel.associations({belongsTo: 'engineBlock'}, {hasOne: 'car', through: function() { return this.engineBlock(); } });
@@ -272,7 +273,7 @@ describe('associations', function () {
                 engineBlock = jasmine.createSpyObj('engineBlock', ['car']);
                 engineBlock.car.andReturn('mockCar');
 
-                subject = new app.Wheel({id: 1}, {engineBlock: function() { return engineBlock; }});
+                subject = new app.Wheel({id: 1}, {engineBlock: engineBlock});
               });
 
               it('should use that function called on the instance to return the association', function() {
@@ -354,7 +355,7 @@ describe('associations', function () {
               describe('when the collection has the association', function() {
                 beforeEach(function () {
                   expect(subject.collection).toBeUndefined();
-                  collection = new app.Cars([subject], {engine: function() { return engine; }});
+                  collection = new app.Cars([subject], {engine: engine});
                 });
 
                 it("should return the collection's instance of the association at runtime, not definition time", function() {
@@ -387,7 +388,7 @@ describe('associations', function () {
         describe('when the model is initialized with an instance of the associated object', function () {
           beforeEach(function () {
             v6 = new app.Engine([]);
-            subject = new app.Car({id: 1}, {engine: function() { return v6; }});
+            subject = new app.Car({id: 1}, {engine: v6});
           });
 
           it('should return the instance of the object', function () {
