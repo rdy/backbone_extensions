@@ -36,7 +36,7 @@ describe('Decorator', function() {
     });
 
     it('should call initialize', function() {
-      expect(initializeSpy).toHaveBeenCalledWith(model);
+      expect(initializeSpy).toHaveBeenCalledWith(model, undefined);
     });
 
     describe('#toJSON', function() {
@@ -61,7 +61,7 @@ describe('Decorator', function() {
     });
 
     it('should call initialize', function() {
-      expect(initializeSpy).toHaveBeenCalledWith(array);
+      expect(initializeSpy).toHaveBeenCalledWith(array, undefined);
     });
 
     describe('#toJSON', function() {
@@ -91,7 +91,7 @@ describe('Decorator', function() {
     });
 
     it('should call initialize', function() {
-      expect(initializeSpy).toHaveBeenCalledWith(collection);
+      expect(initializeSpy).toHaveBeenCalledWith(collection, undefined);
     });
 
     describe('#toJSON', function() {
