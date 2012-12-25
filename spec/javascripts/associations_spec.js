@@ -404,6 +404,26 @@ describe('associations', function () {
               expect(subject.tires().pluck('id')).toEqual([tire1.id, tire2.id]);
             });
           });
+
+          describe('when it is a function', function() {
+            beforeEach(function() {
+              app.Wheel.belongsTo('tire');
+              app.Car.hasMany('tires', {through: function() { return this.wheels(); }});
+
+              tire1 = new app.Tire({id: 1});
+              tire2 = new app.Tire({id: 2});
+              var wheel1 = new app.Wheel({id: 1}, {tire: function() { return tire1; }}),
+                  wheel2 = new app.Wheel({id: 2}, {tire: function() { return tire2; }}),
+                  wheels = new app.Wheels([wheel1, wheel2]);
+
+              subject = new app.Car({id: 1}, {wheels: wheels});
+            });
+
+            it('should use that function called on the instance to return the association', function() {
+              expect(subject.tires() instanceof app.Tires).toBe(true);
+              expect(subject.tires().pluck('id')).toEqual([tire1.id, tire2.id]);
+            });
+          });
         });
 
         describe('when options.class', function() {
