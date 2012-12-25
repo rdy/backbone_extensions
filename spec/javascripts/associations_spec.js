@@ -6,6 +6,8 @@ describe('associations', function () {
       Cars: Backbone.Collection.extend({}, Backbone.extensions.include),
       Wheels: Backbone.Collection.extend({}, Backbone.extensions.include),
       SpareWheels: Backbone.Collection.extend({}, Backbone.extensions.include),
+      Tires: Backbone.Collection.extend({}, Backbone.extensions.include),
+      Tire: Backbone.Model.extend({}, Backbone.extensions.include),
       Wheel: Backbone.Model.extend({}, Backbone.extensions.include),
       Engine: Backbone.Model.extend({}, Backbone.extensions.include),
       SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include)
@@ -377,6 +379,29 @@ describe('associations', function () {
 
             it('should define the inverse of association using this with the named option', function() {
               expect(subject.wheels().car()).toEqual(subject);
+            });
+          });
+        });
+
+        describe('when options.through', function() {
+          var tire1, tire2;
+          describe('when it is a string', function() {
+            beforeEach(function() {
+              app.Wheel.belongsTo('tire');
+              app.Car.hasMany('tires', {through: 'wheels'});
+
+              tire1 = new app.Tire({id: 1});
+              tire2 = new app.Tire({id: 2});
+              var wheel1 = new app.Wheel({id: 1}, {tire: function() { return tire1; }}),
+                  wheel2 = new app.Wheel({id: 2}, {tire: function() { return tire2; }}),
+                  wheels = new app.Wheels([wheel1, wheel2]);
+
+              subject = new app.Car({id: 1}, {wheels: wheels});
+            });
+
+            it('should use the string called on instance to return the association', function() {
+              expect(subject.tires() instanceof app.Tires).toBe(true);
+              expect(subject.tires().pluck('id')).toEqual([tire1.id, tire2.id]);
             });
           });
         });
