@@ -1,14 +1,18 @@
 describe('associations', function () {
   var subject, app;
   beforeEach(function () {
+    var Car = Backbone.Model.extend({}, Backbone.extensions.include),
+        Wheel = Backbone.Model.extend({}, Backbone.extensions.include),
+        Tire = Backbone.Model.extend({}, Backbone.extensions.include);
+
     app = {
-      Car: Backbone.Model.extend({}, Backbone.extensions.include),
-      Cars: Backbone.Collection.extend({}, Backbone.extensions.include),
-      Wheels: Backbone.Collection.extend({}, Backbone.extensions.include),
+      Car: Car,
+      Cars: Backbone.Collection.extend({model: Car}, Backbone.extensions.include),
+      Wheel: Wheel,
+      Wheels: Backbone.Collection.extend({model: Wheel}, Backbone.extensions.include),
       SpareWheels: Backbone.Collection.extend({}, Backbone.extensions.include),
-      Tires: Backbone.Collection.extend({}, Backbone.extensions.include),
-      Tire: Backbone.Model.extend({}, Backbone.extensions.include),
-      Wheel: Backbone.Model.extend({}, Backbone.extensions.include),
+      Tire: Tire,
+      Tires: Backbone.Collection.extend({model: Tire}, Backbone.extensions.include),
       Engine: Backbone.Model.extend({}, Backbone.extensions.include),
       SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include)
     };
@@ -401,7 +405,6 @@ describe('associations', function () {
 
             it('should use the string called on instance to return the association', function() {
               expect(subject.tires() instanceof app.Tires).toBe(true);
-              expect(subject.tires().pluck('id')).toEqual([tire1.id, tire2.id]);
             });
           });
 
@@ -421,7 +424,6 @@ describe('associations', function () {
 
             it('should use that function called on the instance to return the association', function() {
               expect(subject.tires() instanceof app.Tires).toBe(true);
-              expect(subject.tires().pluck('id')).toEqual([tire1.id, tire2.id]);
             });
           });
         });
@@ -620,16 +622,46 @@ describe('associations', function () {
       });
 
       describe('when the association is defined with parse: true', function() {
-        beforeEach(function() {
+        it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
           app.Car.associations({hasMany: 'wheels', parse: true});
           subject = new app.Car();
           spyOn(app.Wheels.prototype, 'add');
-        });
-
-        it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
           var wheelsData = [{id: 1}, {id: 2}];
           subject.parse({wheels: wheelsData});
           expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
+        });
+
+        describe('when options.through', function() {
+          var wheelsData;
+          beforeEach(function() {
+            wheelsData = [{id: 1, tire: {id: 3}}, {id: 2, tire: {id: 4}}];
+          });
+
+          describe('when it is a string', function() {
+            beforeEach(function() {
+              app.Wheel.belongsTo('tire');
+              app.Car.hasMany('wheels', {parse: true}).hasMany('tires', {through: 'wheels', parse: true});
+              subject = new app.Car({id: 1});
+            });
+
+            it('should use the string to parse the association', function() {
+              subject.parse({wheels: wheelsData});
+              expect(subject.tires().pluck('id')).toEqual([3, 4]);
+            });
+          });
+
+          describe('when it is a function', function() {
+            beforeEach(function() {
+              app.Wheel.belongsTo('tire');
+              app.Car.hasMany('wheels', {parse: true}).hasMany('tires', {through: function() { return 'wheels'; }, parse: true});
+              subject = new app.Car({id: 1});
+            });
+
+            it('should use the result of that function to parse the association', function() {
+              subject.parse({wheels: wheelsData});
+              expect(subject.tires().pluck('id')).toEqual([3, 4]);
+            });
+          });
         });
       });
 
