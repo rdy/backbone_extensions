@@ -14,7 +14,9 @@ describe('associations', function () {
       Tire: Tire,
       Tires: Backbone.Collection.extend({model: Tire}, Backbone.extensions.include),
       Engine: Backbone.Model.extend({}, Backbone.extensions.include),
-      SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include)
+      SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include),
+      Radio: Backbone.Model.extend({}, Backbone.extensions.include),
+      Console: Backbone.Model.extend({}, Backbone.extensions.include)
     };
 
     _(app).chain().values().invoke('include', Backbone.extensions.associations(app));
@@ -561,17 +563,14 @@ describe('associations', function () {
       });
 
       describe('when the association is defined with parse: true', function() {
-        var changeSpy;
-        beforeEach(function() {
+        it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
           app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true});
           subject = new app.Car();
           spyOn(app.SpareEngine.prototype, 'clear').andCallThrough();
           spyOn(app.SpareEngine.prototype, 'set').andCallThrough();
-          changeSpy = jasmine.createSpy('change');
+          var changeSpy = jasmine.createSpy('change');
           subject.engine().on('change', changeSpy);
-        });
 
-        it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
           var engineData = {cylinders: 6, manufacturer: 'toyota'};
           subject.parse({spare_engine: engineData});
           expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
@@ -583,8 +582,43 @@ describe('associations', function () {
         });
 
         it("should call the object's normal parse function", function() {
+          app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true});
+          subject = new app.Car();
           subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
           expect(baseParseSpy).toHaveBeenCalledWith({engine : { cylinders : 6 }, foo: 'bar', cow: ['moo']});
+        });
+
+        describe('when options.through', function() {
+          var consoleData;
+          beforeEach(function() {
+            consoleData = {id: 1, radio: {id: 3}};
+          });
+
+          describe('when it is a string', function() {
+            beforeEach(function() {
+              app.Console.belongsTo('radio');
+              app.Car.hasOne('console', {parse: true}).hasOne('radio', {through: 'console', parse: true});
+              subject = new app.Car({id: 1});
+            });
+
+            it('should use the string to parse the association', function() {
+              subject.parse({console: consoleData});
+              expect(subject.radio().id).toEqual(3);
+            });
+          });
+
+          describe('when it is a function', function() {
+            beforeEach(function() {
+              app.Console.belongsTo('radio');
+              app.Car.hasOne('console', {parse: true}).hasOne('radio', {through: function() { return 'console'; }, parse: true});
+              subject = new app.Car({id: 1});
+            });
+
+            it('should use the result of that function to parse the association', function() {
+              subject.parse({console: consoleData});
+              expect(subject.radio().id).toEqual(3);
+            });
+          });
         });
       });
 
