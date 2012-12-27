@@ -202,7 +202,7 @@ describe('associations', function () {
             });
 
             it('should use the string called on instance to return the association', function() {
-              expect(subject.car()).toEqual(engineBlock.car());
+              expect(subject.car() instanceof app.Car).toBe(true);
             });
           });
 
@@ -217,7 +217,7 @@ describe('associations', function () {
             });
 
             it('should use that function called on the instance to return the association', function() {
-              expect(subject.car()).toEqual(engineBlock.car());
+              expect(subject.car() instanceof app.Car).toBe(true);
             });
           });
         });
