@@ -3,7 +3,8 @@ describe('associations', function () {
   beforeEach(function () {
     var Car = Backbone.Model.extend({}, Backbone.extensions.include),
         Wheel = Backbone.Model.extend({}, Backbone.extensions.include),
-        Tire = Backbone.Model.extend({}, Backbone.extensions.include);
+        Tire = Backbone.Model.extend({}, Backbone.extensions.include),
+        SpareTire = Backbone.Model.extend({}, Backbone.extensions.include);
 
     app = {
       Car: Car,
@@ -12,6 +13,8 @@ describe('associations', function () {
       Wheels: Backbone.Collection.extend({model: Wheel}, Backbone.extensions.include),
       SpareWheels: Backbone.Collection.extend({}, Backbone.extensions.include),
       Tire: Tire,
+      SpareTire: SpareTire,
+      SpareTires: Backbone.Collection.extend({model: SpareTire}, Backbone.extensions.include),
       Tires: Backbone.Collection.extend({model: Tire}, Backbone.extensions.include),
       Engine: Backbone.Model.extend({}, Backbone.extensions.include),
       SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include),
@@ -619,6 +622,19 @@ describe('associations', function () {
               expect(subject.radio().id).toEqual(3);
             });
           });
+
+          describe('when options.parseKey', function() {
+            beforeEach(function() {
+              app.Console.belongsTo('radio');
+              app.Car.hasOne('console', {parse: true}).hasOne('radio', {through: 'console', parse: true, parseKey: 'am_fm_radio'});
+              subject = new app.Car({id: 1});
+            });
+
+            it('should use it to find the association', function() {
+              subject.parse({console: {id: 1, am_fm_radio: {id: 3}}});
+              expect(subject.radio().id).toEqual(3);
+            });
+          });
         });
 
         describe('when options.parseKey', function() {
@@ -714,6 +730,19 @@ describe('associations', function () {
             it('should use the result of that function to parse the association', function() {
               subject.parse({wheels: wheelsData});
               expect(subject.tires().pluck('id')).toEqual([3, 4]);
+            });
+          });
+
+          describe('when options.parseKey', function() {
+            beforeEach(function() {
+              app.Wheel.belongsTo('spareTire');
+              app.Car.hasMany('wheels', {parse: true}).hasMany('spareTires', {through: 'wheels', parse: true, parseKey: 'tire'});
+              subject = new app.Car({id: 1});
+            });
+
+            it('should use it to find the association', function() {
+              subject.parse({wheels: wheelsData});
+              expect(subject.spareTires().pluck('id')).toEqual([3, 4]);
             });
           });
         });
