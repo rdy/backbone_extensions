@@ -620,6 +620,26 @@ describe('associations', function () {
             });
           });
         });
+
+        describe('when options.parseKey', function() {
+          it('should use it to find the association', function() {
+            app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true, parseKey: 'engineZ'});
+            subject = new app.Car();
+            spyOn(app.SpareEngine.prototype, 'clear').andCallThrough();
+            spyOn(app.SpareEngine.prototype, 'set').andCallThrough();
+            var changeSpy = jasmine.createSpy('change');
+            subject.engine().on('change', changeSpy);
+
+            var engineData = {cylinders: 6, manufacturer: 'toyota'};
+            subject.parse({engineZ: engineData});
+            expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
+            expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
+            expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
+            expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
+            expect(_(app.SpareEngine.prototype.set.mostRecentCall.args[1]).pick('parse')).toEqual({parse: true});
+            expect(changeSpy).toHaveBeenCalled();
+          });
+        });
       });
 
       describe('when the association is defined with parse as a function', function() {
@@ -695,6 +715,17 @@ describe('associations', function () {
               subject.parse({wheels: wheelsData});
               expect(subject.tires().pluck('id')).toEqual([3, 4]);
             });
+          });
+        });
+
+        describe('when options.parseKey', function() {
+          it('should use it to find the association', function() {
+            app.Car.associations({hasMany: 'wheels', parse: true, parseKey: 'wheelz'});
+            subject = new app.Car();
+            spyOn(app.Wheels.prototype, 'add');
+            var wheelsData = [{id: 1}, {id: 2}];
+            subject.parse({wheelz: wheelsData});
+            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
           });
         });
       });
