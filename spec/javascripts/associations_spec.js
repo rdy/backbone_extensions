@@ -72,7 +72,7 @@ describe('associations', function () {
 
           describe('when it is a function', function() {
             beforeEach(function() {
-              app.Wheel.belongsTo('body').belongsTo('car', {through: function() { return this.body(); } });
+              app.Wheel.belongsTo('body').belongsTo('car', {through: function() { return 'body'; } });
 
               body = jasmine.createSpyObj('body', ['car']);
               body.car.andReturn('mockCar');
@@ -208,7 +208,7 @@ describe('associations', function () {
 
           describe('when it is a function', function() {
             beforeEach(function() {
-              app.Wheel.belongsTo('engineBlock').hasOne('car', {through: function() { return this.engineBlock(); } });
+              app.Wheel.belongsTo('engineBlock').hasOne('car', {through: function() { return 'engineBlock'; } });
 
               engineBlock = jasmine.createSpyObj('engineBlock', ['car']);
               engineBlock.car.andReturn('mockCar');
