@@ -463,7 +463,7 @@ describe('associations', function () {
           describe('when it is provided', function() {
             beforeEach(function() {
               app.Car.hasMany('wheels', {className: 'SpareWheels', foo: 'bar'});
-              subject = new app.Car({id: 1}, {parse: true});
+              subject = new app.Car({id: 1});
               spyOn(app.SpareWheels.prototype, 'initialize').andCallThrough();
             });
 
