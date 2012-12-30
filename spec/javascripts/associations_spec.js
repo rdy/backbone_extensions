@@ -1,4 +1,5 @@
 describe('associations', function () {
+  'use strict';
   var subject, app;
   beforeEach(function () {
     var Car = Backbone.Model.extend({}, Backbone.extensions.include),
