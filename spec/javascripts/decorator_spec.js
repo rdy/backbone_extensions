@@ -1,4 +1,5 @@
 describe('Decorator', function() {
+  'use strict';
   var initializeSpy, toJSONSpy, DecoratorKlass, ModelKlass, CollectionKlass, model, collection, subject;
   beforeEach(function() {
     initializeSpy = jasmine.createSpy('initialize');

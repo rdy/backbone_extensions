@@ -1,4 +1,5 @@
 describe('delegateEvents', function() {
+  'use strict';
   var subject, model, Klass, methodSpy;
 
   beforeEach(function() {

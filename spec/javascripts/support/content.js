@@ -1,4 +1,5 @@
 (function(jasmine) {
+  'use strict';
   function content() {
     return $('#jasmine_content');
   }

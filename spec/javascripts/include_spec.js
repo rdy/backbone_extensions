@@ -1,4 +1,6 @@
 describe('include', function() {
+  'use strict';
+  
   var Klass;
   beforeEach(function() {
     Klass = function() { };
