@@ -624,10 +624,10 @@ describe('associations', function () {
             });
           });
 
-          describe('when options.parseKey', function() {
+          describe('when options.parseName', function() {
             beforeEach(function() {
               app.Console.belongsTo('radio');
-              app.Car.hasOne('console', {parse: true}).hasOne('radio', {through: 'console', parse: true, parseKey: 'am_fm_radio'});
+              app.Car.hasOne('console', {parse: true}).hasOne('radio', {through: 'console', parse: true, parseName: 'am_fm_radio'});
               subject = new app.Car({id: 1});
             });
 
@@ -638,9 +638,9 @@ describe('associations', function () {
           });
         });
 
-        describe('when options.parseKey', function() {
+        describe('when options.parseName', function() {
           it('should use it to find the association', function() {
-            app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true, parseKey: 'engineZ'});
+            app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true, parseName: 'engineZ'});
             subject = new app.Car();
             spyOn(app.SpareEngine.prototype, 'clear').andCallThrough();
             spyOn(app.SpareEngine.prototype, 'set').andCallThrough();
@@ -734,10 +734,10 @@ describe('associations', function () {
             });
           });
 
-          describe('when options.parseKey', function() {
+          describe('when options.parseName', function() {
             beforeEach(function() {
               app.Wheel.belongsTo('spareTire');
-              app.Car.hasMany('wheels', {parse: true}).hasMany('spareTires', {through: 'wheels', parse: true, parseKey: 'tire'});
+              app.Car.hasMany('wheels', {parse: true}).hasMany('spareTires', {through: 'wheels', parse: true, parseName: 'tire'});
               subject = new app.Car({id: 1});
             });
 
@@ -748,9 +748,9 @@ describe('associations', function () {
           });
         });
 
-        describe('when options.parseKey', function() {
+        describe('when options.parseName', function() {
           it('should use it to find the association', function() {
-            app.Car.associations({hasMany: 'wheels', parse: true, parseKey: 'wheelz'});
+            app.Car.associations({hasMany: 'wheels', parse: true, parseName: 'wheelz'});
             subject = new app.Car();
             spyOn(app.Wheels.prototype, 'add');
             var wheelsData = [{id: 1}, {id: 2}];
