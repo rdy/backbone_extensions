@@ -1,6 +1,6 @@
 src_files:
-  - vendor/assets/javascripts/jquery-1.8.2.js
-  - vendor/assets/javascripts/underscore.js
+  - public/javascripts/jquery-1.8.3.js
+  - public/javascripts/underscore.js
   - vendor/assets/javascripts/backbone.js
   - public/javascripts/underscore.string.js
   - public/javascripts/inflection.js
