@@ -586,7 +586,7 @@ describe('associations', function () {
 
         it("should replace the child object's attributes with the association's data from the response, passing parse: true downwards", function() {
           app.Car.associations({hasOne: 'engine', className: 'SpareEngine', parse: true});
-          subject = new app.Car();
+          subject = new app.Car({}, {extra: 'extra options'});
           spyOn(app.SpareEngine.prototype, 'clear').andCallThrough();
           spyOn(app.SpareEngine.prototype, 'set').andCallThrough();
           var changeSpy = jasmine.createSpy('change');
@@ -597,6 +597,7 @@ describe('associations', function () {
           expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
           expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
           expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
+          expect(app.SpareEngine.prototype.set.mostRecentCall.args[1]).toEqual({parse: true, extra: 'extra options'});
           expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
           expect(_(app.SpareEngine.prototype.set.mostRecentCall.args[1]).pick('parse')).toEqual({parse: true});
           expect(changeSpy).toHaveBeenCalled();
@@ -715,14 +716,14 @@ describe('associations', function () {
           var wheelsData, result;
           beforeEach(function() {
             app.Car.associations({hasMany: 'wheels', parse: true});
-            subject = new app.Car();
+            subject = new app.Car({}, {extra: 'extra options'});
             spyOn(app.Wheels.prototype, 'add');
             wheelsData = [{id: 1}, {id: 2}];
             result = subject.parse({wheels: wheelsData});
           });
 
           it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
-            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
+            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true, extra: 'extra options'});
           });
 
           it("should remove the key from parse response", function() {
