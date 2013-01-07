@@ -693,13 +693,23 @@ describe('associations', function () {
       });
 
       describe('when the association is defined with parse: true', function() {
-        it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
-          app.Car.associations({hasMany: 'wheels', parse: true});
-          subject = new app.Car();
-          spyOn(app.Wheels.prototype, 'add');
-          var wheelsData = [{id: 1}, {id: 2}];
-          subject.parse({wheels: wheelsData});
-          expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
+        describe("with the default parse function", function() {
+          var wheelsData, result;
+          beforeEach(function() {
+            app.Car.associations({hasMany: 'wheels', parse: true});
+            subject = new app.Car();
+            spyOn(app.Wheels.prototype, 'add');
+            wheelsData = [{id: 1}, {id: 2}];
+            result = subject.parse({wheels: wheelsData});
+          });
+
+          it('should add to the child collection with its data from the response, passing parse: true downwards', function() {
+            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
+          });
+
+          it("should remove the key from parse response", function() {
+            expect(result.wheels).toBeUndefined();
+          });
         });
 
         describe('when options.through', function() {
@@ -749,13 +759,19 @@ describe('associations', function () {
         });
 
         describe('when options.parseName', function() {
+          var result;
+
           it('should use it to find the association', function() {
             app.Car.associations({hasMany: 'wheels', parse: true, parseName: 'wheelz'});
             subject = new app.Car();
             spyOn(app.Wheels.prototype, 'add');
             var wheelsData = [{id: 1}, {id: 2}];
-            subject.parse({wheelz: wheelsData});
+            result = subject.parse({wheelz: wheelsData});
             expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true});
+          });
+
+          it("should remove the key from parse response", function() {
+            expect(result.wheelz).toBeUndefined();
           });
         });
       });
