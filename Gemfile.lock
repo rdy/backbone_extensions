@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    backbone_extensions (0.0.6)
+    backbone_extensions (0.0.7)
       rails (>= 3.1)
 
 GEM
