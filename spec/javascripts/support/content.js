@@ -5,4 +5,4 @@
   }
 
   jasmine.content = content;
-})(jasmine);
+}).call(this, jasmine);

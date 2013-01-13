@@ -22,6 +22,16 @@ describe('Decorator', function() {
     collection.add(model);
   });
 
+  it('should keep the original functions as a property fn', function() {
+    expect(DecoratorKlass.fn).toHave('toJSON');
+    DecoratorKlass.fn.toJSON = jasmine.createSpy('toJSON').andCallFake(_(DecoratorKlass.fn.toJSON).wrap(function(oldToJSON) {
+      return oldToJSON.call(this);
+    }));
+    model.decorator().toJSON();
+    expect(DecoratorKlass.fn.toJSON).toHaveBeenCalled();
+    expect(toJSONSpy).toHaveBeenCalled();
+  });
+
   describe('when the Backbone include is present', function() {
     beforeEach(function() {
       expect(Backbone.extensions.include).toBeDefined();
