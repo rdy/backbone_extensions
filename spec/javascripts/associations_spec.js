@@ -5,7 +5,9 @@ describe('associations', function () {
     var Car = Backbone.Model.extend({}, Backbone.extensions.include),
         Wheel = Backbone.Model.extend({}, Backbone.extensions.include),
         Tire = Backbone.Model.extend({}, Backbone.extensions.include),
-        SpareTire = Backbone.Model.extend({}, Backbone.extensions.include);
+        SpareTire = Backbone.Model.extend({}, Backbone.extensions.include),
+        Spoke = Backbone.Model.extend({}, Backbone.extensions.include),
+        Piston = Backbone.Model.extend({}, Backbone.extensions.include);
 
     app = {
       Car: Car,
@@ -20,7 +22,11 @@ describe('associations', function () {
       Engine: Backbone.Model.extend({}, Backbone.extensions.include),
       SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include),
       Radio: Backbone.Model.extend({}, Backbone.extensions.include),
-      Console: Backbone.Model.extend({}, Backbone.extensions.include)
+      Console: Backbone.Model.extend({}, Backbone.extensions.include),
+      Spoke: Spoke,
+      Spokes: Backbone.Collection.extend({model: Spoke}, Backbone.extensions.include),
+      Piston: Piston,
+      Pistons: Backbone.Collection.extend({model: Piston}, Backbone.extensions.include)
     };
 
     _(app).chain().values().invoke('include', Backbone.extensions.associations(app));
@@ -582,9 +588,11 @@ describe('associations', function () {
         describe("with the default parse function", function() {
           var result;
           beforeEach(function() {
-            app.Car.associations({hasOne: 'engine', parse: true});
+            app.Engine.hasMany('pistons', {parse: true});
+            app.Car.hasOne('engine', {parse: true});
             subject = new app.Car();
-            result = subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
+            spyOn(app.Pistons.prototype, 'parse').andCallThrough();
+            result = subject.parse({engine: {cylinders: 6, pistons: [{id: 10}, {id: 11}]}, foo: 'bar', cow: ['moo']});
           });
 
           it("should call the object's normal parse function", function() {
@@ -593,6 +601,11 @@ describe('associations', function () {
 
           it("should remove the key from parse response", function() {
             expect(result.engine).toBeUndefined();
+          });
+
+          it("should parse the association's associations", function() {
+            expect(app.Pistons.prototype.parse).toHaveBeenCalled();
+            expect(subject.engine().pistons().pluck('id')).toEqual([10, 11]);
           });
         });
 
@@ -727,10 +740,12 @@ describe('associations', function () {
         describe("with the default parse function", function() {
           var wheelsData, result;
           beforeEach(function() {
-            app.Car.associations({hasMany: 'wheels', parse: true});
+            app.Wheels.hasMany('spokes', {parse: true});
+            app.Car.hasMany('wheels', {parse: true});
             subject = new app.Car({}, {extra: 'extra options'});
             spyOn(app.Wheels.prototype, 'add');
-            wheelsData = [{id: 1}, {id: 2}];
+            spyOn(app.Spokes.prototype, 'parse').andCallThrough();
+            wheelsData = [{id: 1, spokes: [{id: 3}]}, {id: 2, spokes: [{id: 4}]}];
             result = subject.parse({wheels: wheelsData});
           });
 
@@ -740,6 +755,11 @@ describe('associations', function () {
 
           it("should remove the key from parse response", function() {
             expect(result.wheels).toBeUndefined();
+          });
+
+          it("should parse the association's associations", function() {
+            expect(app.Spokes.prototype.parse).toHaveBeenCalled();
+            expect(subject.wheels().spokes().pluck('id')).toEqual([3, 4]);
           });
         });
 
