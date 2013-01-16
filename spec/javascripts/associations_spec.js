@@ -591,7 +591,7 @@ describe('associations', function () {
             app.Engine.hasMany('pistons', {parse: true});
             app.Car.hasOne('engine', {parse: true});
             subject = new app.Car();
-            spyOn(app.Pistons.prototype, 'parse').andCallThrough();
+            spyOn(app.Piston.prototype, 'parse').andCallThrough();
             result = subject.parse({engine: {cylinders: 6, pistons: [{id: 10}, {id: 11}]}, foo: 'bar', cow: ['moo']});
           });
 
@@ -604,7 +604,7 @@ describe('associations', function () {
           });
 
           it("should parse the association's associations", function() {
-            expect(app.Pistons.prototype.parse).toHaveBeenCalled();
+            expect(app.Piston.prototype.parse).toHaveBeenCalled();
             expect(subject.engine().pistons().pluck('id')).toEqual([10, 11]);
           });
         });
@@ -740,10 +740,10 @@ describe('associations', function () {
         describe("with the default parse function", function() {
           var wheelsData, result;
           beforeEach(function() {
-            app.Wheels.hasMany('spokes', {parse: true});
+            app.Wheel.hasMany('spokes', {parse: true, inverseOf: 'wheel'});
             app.Car.hasMany('wheels', {parse: true});
             subject = new app.Car({}, {extra: 'extra options'});
-            spyOn(app.Wheels.prototype, 'add');
+            spyOn(app.Wheels.prototype, 'add').andCallThrough();
             spyOn(app.Spokes.prototype, 'parse').andCallThrough();
             wheelsData = [{id: 1, spokes: [{id: 3}]}, {id: 2, spokes: [{id: 4}]}];
             result = subject.parse({wheels: wheelsData});
@@ -759,7 +759,8 @@ describe('associations', function () {
 
           it("should parse the association's associations", function() {
             expect(app.Spokes.prototype.parse).toHaveBeenCalled();
-            expect(subject.wheels().spokes().pluck('id')).toEqual([3, 4]);
+            expect(subject.wheels().first().spokes().pluck('id')).toEqual([3]);
+            expect(subject.wheels().last().spokes().pluck('id')).toEqual([4]);
           });
         });
 
