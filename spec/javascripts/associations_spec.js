@@ -2,12 +2,13 @@ describe('associations', function () {
   'use strict';
   var subject, app;
   beforeEach(function () {
-    var Car = Backbone.Model.extend({}, Backbone.extensions.include),
-        Wheel = Backbone.Model.extend({}, Backbone.extensions.include),
-        Tire = Backbone.Model.extend({}, Backbone.extensions.include),
-        SpareTire = Backbone.Model.extend({}, Backbone.extensions.include),
-        Spoke = Backbone.Model.extend({}, Backbone.extensions.include),
-        Piston = Backbone.Model.extend({}, Backbone.extensions.include);
+    var Model = Backbone.Model.extend({}, Backbone.extensions.include);
+    var Car = Model.extend(),
+        Wheel = Model.extend(),
+        Tire = Model.extend(),
+        SpareTire = Model.extend(),
+        Spoke = Model.extend(),
+        Piston = Model.extend();
 
     app = {
       Car: Car,
@@ -19,10 +20,10 @@ describe('associations', function () {
       SpareTire: SpareTire,
       SpareTires: Backbone.Collection.extend({model: SpareTire}, Backbone.extensions.include),
       Tires: Backbone.Collection.extend({model: Tire}, Backbone.extensions.include),
-      Engine: Backbone.Model.extend({}, Backbone.extensions.include),
-      SpareEngine: Backbone.Model.extend({}, Backbone.extensions.include),
-      Radio: Backbone.Model.extend({}, Backbone.extensions.include),
-      Console: Backbone.Model.extend({}, Backbone.extensions.include),
+      Engine: Model,
+      SpareEngine: Model,
+      Radio: Model,
+      Console: Model,
       Spoke: Spoke,
       Spokes: Backbone.Collection.extend({model: Spoke}, Backbone.extensions.include),
       Piston: Piston,
@@ -569,10 +570,15 @@ describe('associations', function () {
 
   describe('.extend', function() {
     it('should call associations withe the provided associations', function() {
-      spyOn(app.Car, 'associations');
+      spyOn(app.Car, 'associations').andCallThrough();
       var Klass = app.Car.extend({associations: {hasOne: 'engine'}});
+      expect(app.Car.associations).toHaveBeenCalled();
+      expect(app.Car.associations.mostRecentCall.object).toEqual(Klass);
       expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'});
+
       Klass = app.Car.extend({associations: [{hasOne: 'engine'}, {hasMany: 'wheels'}]});
+      expect(app.Car.associations).toHaveBeenCalled();
+      expect(app.Car.associations.mostRecentCall.object).toEqual(Klass);
       expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'}, {hasMany: 'wheels'});
     });
   });
