@@ -520,6 +520,18 @@ describe('associations', function () {
   });
 
   describe('.associations', function () {
+    it('should not throw an error when called with undefined or null', function() {
+      expect(function() {
+        app.Wheel.associations(null);
+      }).not.toThrow();
+      expect(function() {
+        app.Wheel.associations(undefined);
+      }).not.toThrow();
+      expect(function() {
+        app.Wheel.associations(null, undefined);
+      }).not.toThrow();
+    });
+
     describe('options.belongsTo', function () {
       it('should call the underlying association function passing through the options', function() {
         spyOn(app.Wheel, 'belongsTo').andCallThrough();
@@ -555,7 +567,7 @@ describe('associations', function () {
       var Klass = app.Car.extend({associations: {hasOne: 'engine'}});
       expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'});
       Klass = app.Car.extend({associations: [{hasOne: 'engine'}, {hasMany: 'wheels'}]});
-      expect(app.Car.associations).toHaveBeenCalledWith([{hasOne: 'engine'}, {hasMany: 'wheels'}]);
+      expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'}, {hasMany: 'wheels'});
     });
   });
 
