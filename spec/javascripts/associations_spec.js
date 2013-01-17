@@ -11,6 +11,7 @@ describe('associations', function () {
         Piston = Model.extend();
 
     app = {
+      Model: Model,
       Car: Car,
       Cars: Backbone.Collection.extend({model: Car}, Backbone.extensions.include),
       Wheel: Wheel,
@@ -177,6 +178,10 @@ describe('associations', function () {
       app.Car.hasOne('engine');
       subject = new app.Car({id: 1});
       expect(_(subject.engine).isFunction()).toBe(true);
+    });
+
+    it('should not add a _parsers property to the class', function() {
+      expect(app.Car._parsers).toBeUndefined();
     });
 
     describe('the association function', function () {
@@ -373,6 +378,10 @@ describe('associations', function () {
       app.Car.hasMany('wheels');
       subject = new app.Car({id: 1});
       expect(_(subject.wheels).isFunction()).toBe(true);
+    });
+
+    it('should add a _parsers array property to the class', function() {
+      expect(app.Car.hasMany('wheels')._parsers.length).toBe(1);
     });
 
     describe('the association function', function () {
@@ -581,6 +590,19 @@ describe('associations', function () {
       expect(app.Car.associations.mostRecentCall.object).toEqual(Klass);
       expect(app.Car.associations).toHaveBeenCalledWith({hasOne: 'engine'}, {hasMany: 'wheels'});
     });
+
+    it('should not share the same _parsers between classes', function() {
+      var Klass = app.Car.extend({associations: {hasOne: 'engine'}}),
+          Klass2 = app.Car.extend({associations: {hasMany: 'wheels'}}),
+          Klass3 = app.Car.extend({associations: {hasMany: 'wheels', parse: false}});
+
+      expect(Klass._parsers.length).toBe(1);
+      expect(Klass2._parsers.length).toBe(1);
+      expect(Klass3._parsers).toBeUndefined();
+      expect(Klass._parsers).not.toEqual(Klass2._parsers);
+      expect(app.Model._parsers).toBeUndefined();
+      expect(app.Car._parsers).toBeUndefined();
+    });
   });
 
   describe('#parse', function() {
@@ -605,6 +627,10 @@ describe('associations', function () {
 
           it("should remove the key from parse response", function() {
             expect(result.engine).toBeUndefined();
+          });
+
+          it('should add class _parsers', function() {
+            expect(app.Car._parsers.length).toBe(1);
           });
         });
 
@@ -715,6 +741,10 @@ describe('associations', function () {
           subject.parse(response);
           expect(associationParseSpy).toHaveBeenCalledWith(response);
         });
+
+        it('should add class _parsers', function() {
+          expect(app.Car._parsers.length).toBe(1);
+        });
       });
 
       describe('when the association is defined with parse as falsy', function() {
@@ -725,6 +755,10 @@ describe('associations', function () {
 
         it('should not modify the parse function', function() {
           expect(subject.parse).toBe(app.Car.prototype.parse);
+        });
+
+        it('should not add class _parsers', function() {
+          expect(app.Car._parsers).toBeUndefined();
         });
       });
     });
@@ -832,6 +866,10 @@ describe('associations', function () {
           subject.parse(response);
           expect(associationParseSpy).toHaveBeenCalledWith(response);
         });
+
+        it('should add class _parsers', function() {
+          expect(app.Car._parsers.length).toBe(1);
+        });
       });
 
       describe('when the association is defined with parse as falsy', function() {
@@ -842,6 +880,10 @@ describe('associations', function () {
 
         it('should not modify the parse function', function() {
           expect(subject.parse).toBe(app.Car.prototype.parse);
+        });
+
+        it('should not add class _parsers', function() {
+          expect(app.Car._parsers).toBeUndefined();
         });
       });
     });
