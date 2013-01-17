@@ -870,6 +870,12 @@ describe('associations', function () {
         it('should add class _parsers', function() {
           expect(app.Car._parsers.length).toBe(1);
         });
+
+        it("should not add the association when the function returns falsy", function() {
+          associationParseSpy.andReturn(null);
+          subject.parse({foo: 'bar'});
+          expect(subject.wheels().length).toBe(0);
+        });
       });
 
       describe('when the association is defined with parse as falsy', function() {
