@@ -47,6 +47,14 @@ describe('associations', function () {
     expect(instance.chickens()).toBeUndefined();
   });
 
+  it('should allow the associations mixin fn to be overriden', function() {
+    Backbone.extensions.associations.fn.parseAssociation = jasmine.createSpy('parseAssociation');
+    Backbone.extensions.associations.fn.buildAssociation = jasmine.createSpy('parseAssociation');
+    app.Car.hasMany('wheel');
+    expect(Backbone.extensions.associations.fn.parseAssociation).toHaveBeenCalledWith('hasMany', 'wheel', { parse : true });
+    expect(Backbone.extensions.associations.fn.buildAssociation).toHaveBeenCalledWith('hasMany', 'wheel', { parse : true });
+  });
+
   describe('.belongsTo', function() {
     it('should return the class', function() {
       expect(app.Wheel.belongsTo('car')).toBe(app.Wheel);
