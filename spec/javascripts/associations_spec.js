@@ -60,8 +60,9 @@ describe('associations', function () {
     Klass.include(Backbone.extensions.associations(app, {lazy: true, parse: false}));
     spyOn(Backbone.extensions.associations.fn, 'mergeOptions');
     Klass.hasMany('wheels');
-    new Klass().wheels();
-    expect(Backbone.extensions.associations.fn.mergeOptions).toHaveBeenCalledWith({parse: true}, {lazy: true, parse: false}, undefined);
+    var instance = new Klass().wheels();
+    instance.parse({wheels: []});
+    expect(Backbone.extensions.associations.fn.mergeOptions).toHaveBeenCalledWith({ parse : false, lazy : true }, { lazy : true, parse : false }, undefined);
   });
 
   describe('.belongsTo', function() {
