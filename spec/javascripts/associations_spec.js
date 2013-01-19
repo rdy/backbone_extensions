@@ -52,7 +52,7 @@ describe('associations', function () {
     spyOn(Backbone.extensions.associations.fn, 'buildAssociation');
     app.Car.hasMany('wheel');
     expect(Backbone.extensions.associations.fn.parseAssociation).toHaveBeenCalledWith('hasMany', 'wheel', {parse : true});
-    expect(Backbone.extensions.associations.fn.buildAssociation).toHaveBeenCalledWith('hasMany', 'wheel', {parse : true});
+    expect(Backbone.extensions.associations.fn.buildAssociation).toHaveBeenCalledWith(app, 'hasMany', 'wheel', {parse : true});
   });
 
   it('should allow a global option to override', function() {
