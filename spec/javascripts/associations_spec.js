@@ -48,11 +48,20 @@ describe('associations', function () {
   });
 
   it('should allow the associations mixin fn to be overriden', function() {
-    Backbone.extensions.associations.fn.parseAssociation = jasmine.createSpy('parseAssociation');
-    Backbone.extensions.associations.fn.buildAssociation = jasmine.createSpy('parseAssociation');
+    spyOn(Backbone.extensions.associations.fn, 'parseAssociation');
+    spyOn(Backbone.extensions.associations.fn, 'buildAssociation');
     app.Car.hasMany('wheel');
-    expect(Backbone.extensions.associations.fn.parseAssociation).toHaveBeenCalledWith('hasMany', 'wheel', { parse : true });
-    expect(Backbone.extensions.associations.fn.buildAssociation).toHaveBeenCalledWith('hasMany', 'wheel', { parse : true });
+    expect(Backbone.extensions.associations.fn.parseAssociation).toHaveBeenCalledWith('hasMany', 'wheel', {parse : true});
+    expect(Backbone.extensions.associations.fn.buildAssociation).toHaveBeenCalledWith('hasMany', 'wheel', {parse : true});
+  });
+
+  it('should allow a global option to override', function() {
+    var Klass = Backbone.Model.extend({}, Backbone.extensions.include);
+    Klass.include(Backbone.extensions.associations(app, {lazy: true, parse: false}));
+    spyOn(Backbone.extensions.associations.fn, 'mergeOptions');
+    Klass.hasMany('wheels');
+    new Klass().wheels();
+    expect(Backbone.extensions.associations.fn.mergeOptions).toHaveBeenCalledWith({parse: true}, {lazy: true, parse: false}, undefined);
   });
 
   describe('.belongsTo', function() {
