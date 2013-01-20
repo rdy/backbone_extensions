@@ -274,7 +274,7 @@ describe('associations', function () {
             it("should initialize the new instance of the child collection with the parent's options, without the class option", function() {
               expect(subject.engine()).toBeDefined();
               expect(app.SpareEngine.prototype.initialize).toHaveBeenCalled();
-              expect(app.SpareEngine.prototype.initialize.mostRecentCall.args[1]).toEqual({foo: 'bar'});
+              expect(app.SpareEngine.prototype.initialize.mostRecentCall.args[1]).toEqual({parse: true, foo: 'bar'});
             });
           });
 
@@ -305,7 +305,7 @@ describe('associations', function () {
             it("should initialize the new instance of the child collection with the parent's options, without the className option", function() {
               expect(subject.engine()).toBeDefined();
               expect(app.SpareEngine.prototype.initialize).toHaveBeenCalled();
-              expect(app.SpareEngine.prototype.initialize.mostRecentCall.args[1]).toEqual({foo: 'bar'});
+              expect(app.SpareEngine.prototype.initialize.mostRecentCall.args[1]).toEqual({parse: true, foo: 'bar'});
             });
           });
 
@@ -508,7 +508,7 @@ describe('associations', function () {
 
             it("should initialize the new instance of the child collection with the parent's options, without the className option", function() {
               expect(subject.wheels()).toBeDefined();
-              expect(app.SpareWheels.prototype.initialize).toHaveBeenCalledWith(null, {foo: 'bar'});
+              expect(app.SpareWheels.prototype.initialize).toHaveBeenCalledWith(null, {parse: true, foo: 'bar'});
             });
           });
 
@@ -650,7 +650,7 @@ describe('associations', function () {
             expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
             expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
             expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
-            expect(app.SpareEngine.prototype.set.mostRecentCall.args[1]).toEqual({extra: 'extra options'});
+            expect(app.SpareEngine.prototype.set.mostRecentCall.args[1]).toEqual({parse: true, extra: 'extra options'});
             expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
           });
 
@@ -684,7 +684,7 @@ describe('associations', function () {
           expect(app.SpareEngine.prototype.clear).toHaveBeenCalled();
           expect(_(app.SpareEngine.prototype.clear.mostRecentCall.args[0]).pick('silent')).toEqual({silent: true});
           expect(app.SpareEngine.prototype.set).toHaveBeenCalled();
-          expect(app.SpareEngine.prototype.set.mostRecentCall.args[1]).toEqual({extra: 'extra options'});
+          expect(app.SpareEngine.prototype.set.mostRecentCall.args[1]).toEqual({parse: true, extra: 'extra options'});
           expect(app.SpareEngine.prototype.set.mostRecentCall.args[0]).toEqual(engineData);
           expect(changeSpy).toHaveBeenCalled();
         });
@@ -837,7 +837,7 @@ describe('associations', function () {
           });
 
           it("should replace the child object's attributes with the association's data from the response, passing options downwards", function() {
-            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {extra: 'extra options'});
+            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true, extra: 'extra options'});
           });
 
           describe('memoization', function() {
@@ -869,7 +869,7 @@ describe('associations', function () {
           });
 
           it('should add to the child collection with its data from the response, passing options downwards', function() {
-            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {extra: 'extra options'});
+            expect(app.Wheels.prototype.add).toHaveBeenCalledWith(wheelsData, {parse: true, extra: 'extra options'});
           });
 
           it("should remove the key from parse response", function() {
