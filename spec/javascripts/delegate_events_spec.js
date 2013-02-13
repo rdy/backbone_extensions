@@ -195,8 +195,7 @@ describe('delegateEvents', function() {
 
     beforeEach(function() {
       changeSpy = jasmine.createSpy('change');
-      subject.delegateEvents([[model, {change: changeSpy}]]);
-      spyOn($.fn, 'unbind').andCallThrough();
+      subject.delegateEvents([model, {change: changeSpy}]);
       subject.undelegateEvents();
     });
 
@@ -205,8 +204,20 @@ describe('delegateEvents', function() {
       expect(changeSpy).not.toHaveBeenCalled();
     });
 
-    it("should call jQuery unbind", function() {
-      expect($.fn.unbind).toHaveBeenCalled();
+    describe("when the jquery event passed a context", function() {
+      var $el, selector = 'span';
+      beforeEach(function() {
+        $el = $('<div/>').append('<span/>');
+        subject.delegateEvents([$el, {click: changeSpy}, selector]);
+        spyOn($.fn, 'off').andCallThrough();
+        subject.undelegateEvents();
+      });
+
+      it("should call jQuery off", function() {
+        expect($.fn.off).toHaveBeenCalled();
+        expect($.fn.off.calls[0].args[0]).toEqual('click');
+        expect($.fn.off.calls[0].args[1]).toEqual(selector);
+      });
     });
   });
 
