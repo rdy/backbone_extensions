@@ -60,13 +60,13 @@ describe('delegateEvents', function() {
 
     describe("when it is called with a tuple", function() {
       describe("when the subject is not a jquery", function() {
-        var resetSpy1, resetSpy2;
+        var resetSpy1, resetSpy2, context = {};
 
         beforeEach(function() {
           resetSpy1 = jasmine.createSpy('resetSpy1');
           resetSpy2 = jasmine.createSpy('resetSpy2');
           spyOn(subject, 'undelegateEvents').andCallThrough();
-          subject.delegateEvents([model, {change: changeSpy, reset: [resetSpy1, resetSpy2], add: 'method'}]);
+          subject.delegateEvents([model, {change: changeSpy, reset: [resetSpy1, resetSpy2], add: 'method'}, context]);
         });
 
         it('should call undelegate events', function() {
@@ -81,15 +81,15 @@ describe('delegateEvents', function() {
         it("should bind backbone callbacks that are supplied as an array with the expected context", function() {
           model.trigger('reset');
           expect(resetSpy1).toHaveBeenCalled();
-          expect(resetSpy1.mostRecentCall.object).toEqual(subject);
+          expect(resetSpy1.mostRecentCall.object).toEqual(context);
           expect(resetSpy2).toHaveBeenCalled();
-          expect(resetSpy2.mostRecentCall.object).toEqual(subject);
+          expect(resetSpy2.mostRecentCall.object).toEqual(context);
         });
 
         it('should bind the event with the expected context if it is a string', function() {
           model.trigger('add');
           expect(methodSpy).toHaveBeenCalled();
-          expect(methodSpy.mostRecentCall.object).toEqual(subject);
+          expect(methodSpy.mostRecentCall.object).toEqual(context);
         });
 
         it("should be resilient against null backbone objects", function() {
@@ -101,12 +101,63 @@ describe('delegateEvents', function() {
 
       describe("when the subject is a jquery", function() {
         describe("when called with a function", function() {
+          describe("when it is called with a selector", function() {
+            var $el, clickSpy, selector = 'span';
+            beforeEach(function() {
+              $el = $('<div/>').append('<span/>');
+              clickSpy = jasmine.createSpy('click');
+              subject.delegateEvents([$el, {click: clickSpy}, selector]);
+            });
+
+            it("should call jQuery on for the events on the selector", function() {
+              expect($.fn.on.mostRecentCall.args.length).toBe(3);
+              expect($.fn.on.mostRecentCall.args[0]).toEqual('click');
+              expect($.fn.on.mostRecentCall.args[1]).toEqual(selector);
+              expect($.fn.on.mostRecentCall.object).toEqual($el);
+
+              $el.click();
+              expect(clickSpy).not.toHaveBeenCalled();
+
+              expect(function() {
+                $el.find(selector).click();
+              }).not.toThrow();
+
+              expect(clickSpy).toHaveBeenCalled();
+              expect(clickSpy.mostRecentCall.args.length).toBe(1);
+            });
+          });
+
+          describe("when it is called without a selector", function() {
+            var $el, clickSpy;
+            beforeEach(function() {
+              $el = $('<div/>');
+              clickSpy = jasmine.createSpy('click');
+              subject.delegateEvents([$el, {click: clickSpy}]);
+            });
+            it("should call jQuery on for the events", function() {
+              expect($.fn.on.mostRecentCall.args.length).toBe(2);
+              expect($.fn.on.mostRecentCall.args[0]).toEqual('click');
+              expect($.fn.on.mostRecentCall.object).toEqual($el);
+
+              expect(function() {
+                $el.click();
+              }).not.toThrow();
+
+              expect(clickSpy).toHaveBeenCalled();
+              expect(clickSpy.mostRecentCall.args.length).toBe(1);
+            });
+          });
+        });
+
+        describe("when called with a string", function() {
           var $el, clickSpy;
           beforeEach(function() {
             $el = $('<div/>');
             clickSpy = jasmine.createSpy('click');
-            subject.delegateEvents([$el, {click: clickSpy}]);
+            subject.click = clickSpy;
+            subject.delegateEvents([$el, {click: 'click'}]);
           });
+
           it("should call jQuery on for the events", function() {
             expect($.fn.on.mostRecentCall.args.length).toBe(2);
             expect($.fn.on.mostRecentCall.args[0]).toEqual('click');
