@@ -1,10 +1,12 @@
 #!/usr/bin/env rake
+ENV['JASMINE_SPEC_FORMAT'] = 'Fuubar'
 begin
   require 'bundler/setup'
 rescue LoadError
   puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
 end
 
+require 'yajl/json_gem'
 Bundler::GemHelper.install_tasks
 
 require 'jshint/tasks'
