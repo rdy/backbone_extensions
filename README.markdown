@@ -1,12 +1,10 @@
-Backbone Extensions
-=====================
+# Backbone Extensions
 
 [![Build Status](https://secure.travis-ci.org/rdy/backbone_extensions.png)](http://travis-ci.org/rdy/backbone_extensions)
 
 Adds extensions to the Backbone javascript library. It adds the javascript as a rails engine to be included in to a Rails 3+ project. To use it make sure require underscore, and backbone.
 
-Installing
-==========
+## Installing
 
   1. Add the gem to bundler or install:  gem 'backbone_extensions' or `gem install backbone_extensions`
   2. In your application.js //= require underscore
@@ -14,5 +12,9 @@ Installing
   4. In your application.js //= require backbone_extensions/include
   5. In your application.js //= require backbone_extensions/decorator
   6. In your application.js //= require backbone_extensions/associations
+
+## Running Specs
+
+  1. `rake jasmine` will start a server for the specs on port 8888.
 
 Copyright (c) 2012-3 Ryan Dy, Thomas Bukowski, released under the MIT license
