@@ -636,11 +636,11 @@ describe('associations', function () {
           beforeEach(function() {
             app.Car.associations({hasOne: 'engine', parse: true});
             subject = new app.Car();
-            result = subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']});
+            result = subject.parse({engine: {cylinders: 6}, foo: 'bar', cow: ['moo']}, {option: 'foo'});
           });
 
           it("should call the object's normal parse function", function() {
-            expect(baseParseSpy).toHaveBeenCalledWith({engine : { cylinders : 6 }, foo: 'bar', cow: ['moo']});
+            expect(baseParseSpy).toHaveBeenCalledWith({engine : { cylinders : 6 }, foo: 'bar', cow: ['moo']}, {option: 'foo'});
           });
 
           it("should remove the key from parse response", function() {
@@ -782,11 +782,6 @@ describe('associations', function () {
     });
 
     describe('for hasMany', function() {
-      var baseParseSpy;
-      beforeEach(function() {
-        baseParseSpy = spyOn(app.Car.prototype, 'parse').andCallThrough();
-      });
-
       describe('when the association is defined with parse: true', function() {
         describe("with the default parse function", function() {
           var wheelsData, result;
