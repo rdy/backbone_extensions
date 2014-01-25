@@ -1,7 +1,7 @@
 src_files:
   - public/javascripts/jquery-1.9.0.js
   - public/javascripts/underscore.js
-  - vendor/assets/javascripts/backbone.js
+  - lib/assets/javascripts/backbone.js
   - public/javascripts/underscore.string.js
   - public/javascripts/inflection.js
   - public/javascripts/underscore.extensions.js

@@ -11,6 +11,7 @@ paths:
   - spec/javascripts/**/*.js
 
 exclude_paths:
+  - lib/assets/javascripts/backbone.js
   - spec/javascripts/support/vendor/**/*.js
 
 # ------------ jshint options ------------

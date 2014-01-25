@@ -1,5 +1,4 @@
 #!/usr/bin/env rake
-ENV['JASMINE_SPEC_FORMAT'] = 'Fuubar'
 begin
   require 'bundler/setup'
 rescue LoadError

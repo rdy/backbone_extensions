@@ -494,7 +494,7 @@
     slugify: function(str) {
       if (str == null) return '';
 
-      var from  = "Ä…Ã Ã¡Ã¤Ã¢Ã£Ã¥Ã¦Ä‡Ä™Ã¨Ã©Ã«ÃªÃ¬Ã­Ã¯Ã®Å‚Å„Ã²Ã³Ã¶Ã´ÃµÃ¸Ã¹ÃºÃ¼Ã»Ã±Ã§Å¼Åº",
+      var from  = "ąàáäâãåæćęèéëêìíïîłńòóöôõøùúüûñçżź",
           to    = "aaaaaaaaceeeeeiiiilnoooooouuuunczz",
           regex = new RegExp(defaultToWhiteSpace(from), 'g');
 

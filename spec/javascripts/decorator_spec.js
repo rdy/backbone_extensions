@@ -24,7 +24,7 @@ describe('Decorator', function() {
 
   it('should keep the original functions as a property fn', function() {
     expect(DecoratorKlass.fn).toHave('toJSON');
-    DecoratorKlass.fn.toJSON = jasmine.createSpy('toJSON').andCallFake(_(DecoratorKlass.fn.toJSON).wrap(function(oldToJSON) {
+    DecoratorKlass.fn.toJSON = jasmine.createSpy('toJSON').and.callFake(_(DecoratorKlass.fn.toJSON).wrap(function(oldToJSON) {
       return oldToJSON.call(this);
     }));
     model.decorator().toJSON();
@@ -58,7 +58,7 @@ describe('Decorator', function() {
       it('should call toJSON with the model', function() {
         expect(_(subject.toJSON).isFunction()).toBe(true);
         expect(toJSONSpy).toHaveBeenCalled();
-        expect(toJSONSpy.mostRecentCall.object).toEqual(model);
+        expect(toJSONSpy.calls.mostRecent().object).toEqual(model);
       });
     });
   });
@@ -83,9 +83,9 @@ describe('Decorator', function() {
       it('should call toJSON with the model', function() {
         expect(_(subject.toJSON).isFunction()).toBe(true);
         expect(toJSONSpy).toHaveBeenCalled();
-        expect(toJSONSpy.calls.length).toEqual(array.length);
+        expect(toJSONSpy.calls.all().length).toEqual(array.length);
         _(array).each(function(value, i) {
-          expect(toJSONSpy.calls[i].object).toEqual(array[i]);
+          expect(toJSONSpy.calls.all()[i].object).toEqual(array[i]);
         });
       });
     });
@@ -113,9 +113,9 @@ describe('Decorator', function() {
       it('should call toJSON with the model', function() {
         expect(_(subject.toJSON).isFunction()).toBe(true);
         expect(toJSONSpy).toHaveBeenCalled();
-        expect(toJSONSpy.calls.length).toEqual(collection.length);
+        expect(toJSONSpy.calls.all().length).toEqual(collection.length);
         collection.each(function(value, i) {
-          expect(toJSONSpy.calls[i].object).toEqual(collection.at(i));
+          expect(toJSONSpy.calls.all()[i].object).toEqual(collection.at(i));
         });
       });
     });

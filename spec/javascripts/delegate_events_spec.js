@@ -4,7 +4,7 @@ describe('delegateEvents', function() {
 
   beforeEach(function() {
     methodSpy = jasmine.createSpy('method');
-    originalDelegateEventsSpy = spyOn(Backbone.View.prototype, 'delegateEvents').andCallThrough();
+    originalDelegateEventsSpy = spyOn(Backbone.View.prototype, 'delegateEvents').and.callThrough();
     Klass = Backbone.View.extend({method: methodSpy}, Backbone.extensions.include);
     Klass.include(Backbone.extensions.delegateEvents);
     subject = new Klass();
@@ -16,7 +16,7 @@ describe('delegateEvents', function() {
 
     beforeEach(function() {
       changeSpy = jasmine.createSpy('change');
-      spyOn($.fn, 'on').andCallThrough();
+      spyOn($.fn, 'on').and.callThrough();
     });
     
     describe("when called by Backbone.View's constructor", function() {
@@ -87,7 +87,7 @@ describe('delegateEvents', function() {
         it('should bind the event with the expected context if it is a string', function() {
           subject.$("div").trigger('mouseenter');
           expect(methodSpy).toHaveBeenCalled();
-          expect(methodSpy.mostRecentCall.object).toEqual(subject);
+          expect(methodSpy.calls.mostRecent().object).toEqual(subject);
         });
       });
     });
@@ -99,7 +99,7 @@ describe('delegateEvents', function() {
         beforeEach(function() {
           resetSpy1 = jasmine.createSpy('resetSpy1');
           resetSpy2 = jasmine.createSpy('resetSpy2');
-          spyOn(subject, 'undelegateEvents').andCallThrough();
+          spyOn(subject, 'undelegateEvents').and.callThrough();
           subject.delegateEvents([model, {change: changeSpy, reset: [resetSpy1, resetSpy2], add: 'method'}, context]);
         });
 
@@ -115,15 +115,15 @@ describe('delegateEvents', function() {
         it("should bind backbone callbacks that are supplied as an array with the expected context", function() {
           model.trigger('reset');
           expect(resetSpy1).toHaveBeenCalled();
-          expect(resetSpy1.mostRecentCall.object).toEqual(context);
+          expect(resetSpy1.calls.mostRecent().object).toEqual(context);
           expect(resetSpy2).toHaveBeenCalled();
-          expect(resetSpy2.mostRecentCall.object).toEqual(context);
+          expect(resetSpy2.calls.mostRecent().object).toEqual(context);
         });
 
         it('should bind the event with the expected context if it is a string', function() {
           model.trigger('add');
           expect(methodSpy).toHaveBeenCalled();
-          expect(methodSpy.mostRecentCall.object).toEqual(context);
+          expect(methodSpy.calls.mostRecent().object).toEqual(context);
         });
 
         it("should be resilient against null backbone objects", function() {
@@ -144,10 +144,11 @@ describe('delegateEvents', function() {
             });
 
             it("should call jQuery on for the events on the selector", function() {
-              expect($.fn.on.mostRecentCall.args.length).toBe(3);
-              expect($.fn.on.mostRecentCall.args[0]).toEqual('click');
-              expect($.fn.on.mostRecentCall.args[1]).toEqual(selector);
-              expect($.fn.on.mostRecentCall.object).toEqual($el);
+              var mostRecent = $.fn.on.calls.mostRecent();
+              expect(mostRecent.args.length).toBe(3);
+              expect(mostRecent.args[0]).toEqual('click');
+              expect(mostRecent.args[1]).toEqual(selector);
+              expect(mostRecent.object).toEqual($el);
 
               $el.click();
               expect(clickSpy).not.toHaveBeenCalled();
@@ -157,7 +158,7 @@ describe('delegateEvents', function() {
               }).not.toThrow();
 
               expect(clickSpy).toHaveBeenCalled();
-              expect(clickSpy.mostRecentCall.args.length).toBe(1);
+              expect(clickSpy.calls.mostRecent().args.length).toBe(1);
             });
           });
 
@@ -169,16 +170,17 @@ describe('delegateEvents', function() {
               subject.delegateEvents([$el, {click: clickSpy}]);
             });
             it("should call jQuery on for the events", function() {
-              expect($.fn.on.mostRecentCall.args.length).toBe(2);
-              expect($.fn.on.mostRecentCall.args[0]).toEqual('click');
-              expect($.fn.on.mostRecentCall.object).toEqual($el);
+              var mostRecent = $.fn.on.calls.mostRecent();
+              expect(mostRecent.args.length).toBe(2);
+              expect(mostRecent.args[0]).toEqual('click');
+              expect(mostRecent.object).toEqual($el);
 
               expect(function() {
                 $el.click();
               }).not.toThrow();
 
               expect(clickSpy).toHaveBeenCalled();
-              expect(clickSpy.mostRecentCall.args.length).toBe(1);
+              expect(clickSpy.calls.mostRecent().args.length).toBe(1);
             });
           });
         });
@@ -193,16 +195,17 @@ describe('delegateEvents', function() {
           });
 
           it("should call jQuery on for the events", function() {
-            expect($.fn.on.mostRecentCall.args.length).toBe(2);
-            expect($.fn.on.mostRecentCall.args[0]).toEqual('click');
-            expect($.fn.on.mostRecentCall.object).toEqual($el);
+            var mostRecent = $.fn.on.calls.mostRecent();
+            expect(mostRecent.args.length).toBe(2);
+            expect(mostRecent.args[0]).toEqual('click');
+            expect(mostRecent.object).toEqual($el);
 
             expect(function() {
               $el.click();
             }).not.toThrow();
 
             expect(clickSpy).toHaveBeenCalled();
-            expect(clickSpy.mostRecentCall.args.length).toBe(1);
+            expect(clickSpy.calls.mostRecent().args.length).toBe(1);
           });
         });
       });
@@ -243,21 +246,21 @@ describe('delegateEvents', function() {
       beforeEach(function() {
         $el = $('<div/>').append('<span/>');
         subject.delegateEvents([$el, {click: changeSpy}, selector]);
-        spyOn($.fn, 'off').andCallThrough();
+        spyOn($.fn, 'off').and.callThrough();
         subject.undelegateEvents();
       });
 
       it("should call jQuery off", function() {
         expect($.fn.off).toHaveBeenCalled();
-        expect($.fn.off.calls[0].args[0]).toEqual('click');
-        expect($.fn.off.calls[0].args[1]).toEqual(selector);
+        expect($.fn.off.calls.first().args[0]).toEqual('click');
+        expect($.fn.off.calls.first().args[1]).toEqual(selector);
       });
     });
   });
 
   describe("#remove", function() {
     it("should call undelegate events", function() {
-      spyOn(subject, 'undelegateEvents').andCallThrough();
+      spyOn(subject, 'undelegateEvents').and.callThrough();
       subject.remove();
       expect(subject.undelegateEvents).toHaveBeenCalled();
     });
