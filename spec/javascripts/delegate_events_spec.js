@@ -20,7 +20,7 @@ describe('delegateEvents', function() {
     });
     
     describe("when called by Backbone.View's constructor", function() {
-      describe("when the view has an events property", function() {
+      describe("when the view has an events property with a hash", function() {
         var firstSpy, secondSpy;
         
         beforeEach(function() {
@@ -40,6 +40,36 @@ describe('delegateEvents', function() {
           expect(secondSpy).toHaveBeenCalled();
         });
       });
+      
+      describe("when the view has an events property with an array", function() {
+        var model, firstSpy, secondSpy, eventSpy;
+        
+        beforeEach(function() {
+          model = new Backbone.Model();
+          firstSpy = jasmine.createSpy('first');
+          secondSpy = jasmine.createSpy('second');
+          eventSpy = jasmine.createSpy('event');
+          
+          Klass.prototype.events = [
+            [model, {event: eventSpy}],
+            {'click div': [firstSpy, secondSpy]}
+          ];
+          
+          subject = new Klass({el: jasmine.content()[0]});
+          jasmine.content().append('<div/>');
+        });
+
+        it("should bind DOM delegate events from that property", function() {
+          subject.$("div").click();
+          expect(firstSpy).toHaveBeenCalled();
+          expect(secondSpy).toHaveBeenCalled();
+        });
+ 
+        it("should bind model events from that property", function() {
+          model.trigger('event');
+          expect(eventSpy).toHaveBeenCalled();
+        });
+     });
       
       describe("when the view has no events property", function() {
         beforeEach(function() {
